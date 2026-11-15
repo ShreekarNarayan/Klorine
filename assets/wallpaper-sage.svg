@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMax slice">
+  <!-- Klorine default wallpaper (Sage & Off-White): off-white sky, soft sun, sage hills. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7F5EF"/>
+      <stop offset="1" stop-color="#EEF1E7"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <!-- Soft sun (or moon) -->
+  <circle cx="1490" cy="300" r="260" fill="url(#glow)"/>
+  <circle cx="1490" cy="300" r="118" fill="#E3EAD8"/>
+  <!-- Hills, far to near -->
+  <path fill="#DCE4D2" d="M0 742 C210 690 380 664 590 690 C800 716 940 650 1150 632 C1380 612 1560 676 1920 640 L1920 1080 L0 1080 Z"/>
+  <path fill="#C6D3B8" d="M0 816 C240 770 420 748 640 790 C860 832 1030 760 1260 752 C1490 744 1680 800 1920 770 L1920 1080 L0 1080 Z"/>
+  <path fill="#AFC09D" d="M0 892 C260 846 470 850 700 884 C930 918 1120 852 1360 846 C1600 840 1760 884 1920 868 L1920 1080 L0 1080 Z"/>
+  <path fill="#9CAF88" d="M0 978 C280 934 520 944 780 970 C1040 996 1260 940 1520 942 C1700 944 1820 962 1920 956 L1920 1080 L0 1080 Z"/>
+  <!-- A single leaf resting on the nearest hill (the Klorine mark) -->
+  <g transform="translate(1630 900) rotate(-28)">
+    <path fill="#F7F5EF" d="M0 -64 C34 -36 40 10 0 64 C-40 10 -34 -36 0 -64 Z"/>
+    <path d="M0 60 C-2 20 2 -16 10 -40" fill="none" stroke="#9CAF88" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>
