@@ -1,0 +1,2660 @@
+/* =============================================================================
+   styles.css — how the browser LOOKS (Material Design 3 / Material You)
+   =============================================================================
+   Sections:
+     1. Color themes (light + dark) and other design tokens
+     2. Page basics
+     3. Icon buttons (with the circular ripple)
+     4. Tab strip
+     5. Navigation toolbar and address bar
+     6. Progress bar
+     7. Bookmarks bar
+     8. Page area and split view
+     8b. Tabs on the side (vertical tabs)
+     8c. Tab groups (colored groups of tabs)
+     8d. Shields button and panel
+     9. Settings panel and the message bar
+   ========================================================================== */
+
+
+/* =============================================================================
+   1. DESIGN TOKENS
+   =============================================================================
+   Every color in the app is built from ONE number: --hue (a position on the
+   color wheel, 0-360). Change the hue and the whole palette follows — that is
+   the "dynamic color" idea behind Material You. The settings panel changes
+   --hue when you pick an accent color.
+
+   oklch(lightness chroma hue) is a color format where equal lightness values
+   LOOK equally bright, which keeps every accent color readable.
+   ========================================================================== */
+
+:root {
+  --hue: 300;                       /* default accent: purple */
+
+  /* Shapes. Raise these numbers for an even rounder look. */
+  --radius-button: 12px;            /* action buttons */
+  --radius-container: 16px;         /* settings panel */
+  --radius-pill: 28px;              /* address bar */
+  --radius-bar: 28px;               /* tab strip, toolbar, bookmarks bar, sidebar */
+  --radius-page: 24px;              /* the area that shows websites */
+  --radius-tab: 18px;               /* each tab (pill-shaped) */
+
+  /* Width of the tab sidebar when tabs are on the side. */
+  --sidebar-width: 248px;
+
+  /* Motion: Material's "standard" easing curve */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --fast: 150ms;
+  --medium: 250ms;
+
+  --font: "Google Sans", "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---------- Light theme ---------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --primary:                 oklch(0.48 0.14 var(--hue));
+  --on-primary:              oklch(1 0 0);
+  --primary-container:       oklch(0.92 0.05 var(--hue));
+  --on-primary-container:    oklch(0.27 0.10 var(--hue));
+
+  --surface:                 oklch(0.985 0.006 var(--hue));
+  --surface-container-low:   oklch(0.965 0.010 var(--hue));
+  --surface-container:       oklch(0.945 0.013 var(--hue));
+  --surface-container-high:  oklch(0.925 0.015 var(--hue));
+  --surface-container-highest: oklch(0.905 0.017 var(--hue));
+  --on-surface:              oklch(0.22 0.012 var(--hue));
+
+  --surface-variant:         oklch(0.91 0.02 var(--hue));
+  --on-surface-variant:      oklch(0.40 0.02 var(--hue));
+  --outline:                 oklch(0.56 0.02 var(--hue));
+  --outline-variant:         oklch(0.82 0.02 var(--hue));
+
+  --error:                   oklch(0.50 0.19 27);
+  --inverse-surface:         oklch(0.30 0.012 var(--hue));
+  --inverse-on-surface:      oklch(0.96 0.008 var(--hue));
+  --tab-active:              var(--surface);
+  --bar-bg:                  var(--surface-container-low);   /* raised bars */
+  --track-bg:                var(--surface-container-high);  /* sunken tracks */
+  --app-bg:                  var(--surface-container);       /* window background */
+  --field-bg:                var(--surface-container-highest); /* address bar */
+
+  /* Tab group colors: how light and how strong they are in this theme, and
+     the text color used on top of them. */
+  --g-l:    0.57;
+  --g-cmax: 0.16;
+  --g-on:   oklch(1 0 0);
+
+  /* Elevation = soft drop shadows. Level 1 is subtle, level 3 is strongest. */
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.18), 0 1px 3px 1px rgb(0 0 0 / 0.08);
+  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.20), 0 2px 6px 2px rgb(0 0 0 / 0.10);
+  --elevation-3: 0 1px 3px rgb(0 0 0 / 0.22), 0 4px 8px 3px rgb(0 0 0 / 0.12);
+}
+
+/* ---------- Dark theme ---------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --primary:                 oklch(0.82 0.10 var(--hue));
+  --on-primary:              oklch(0.30 0.11 var(--hue));
+  --primary-container:       oklch(0.40 0.12 var(--hue));
+  --on-primary-container:    oklch(0.92 0.05 var(--hue));
+
+  --surface:                 oklch(0.18 0.010 var(--hue));
+  --surface-container-low:   oklch(0.21 0.012 var(--hue));
+  --surface-container:       oklch(0.235 0.014 var(--hue));
+  --surface-container-high:  oklch(0.27 0.016 var(--hue));
+  --surface-container-highest: oklch(0.31 0.018 var(--hue));
+  --on-surface:              oklch(0.91 0.012 var(--hue));
+
+  --surface-variant:         oklch(0.40 0.02 var(--hue));
+  --on-surface-variant:      oklch(0.82 0.02 var(--hue));
+  --outline:                 oklch(0.63 0.02 var(--hue));
+  --outline-variant:         oklch(0.40 0.02 var(--hue));
+
+  --error:                   oklch(0.80 0.10 27);
+  --inverse-surface:         oklch(0.91 0.012 var(--hue));
+  --inverse-on-surface:      oklch(0.30 0.012 var(--hue));
+  --tab-active:              var(--surface-container-highest);
+  --bar-bg:                  var(--surface-container-high);  /* raised bars */
+  --track-bg:                var(--surface-container-low);   /* sunken tracks */
+  --app-bg:                  var(--surface-container);       /* window background */
+  --field-bg:                var(--surface-container-highest); /* address bar */
+
+  /* Tab group colors (lighter and softer in the dark theme). */
+  --g-l:    0.80;
+  --g-cmax: 0.12;
+  --g-on:   oklch(0.20 0.01 260);
+
+  /* Shadows need to be stronger to show up on dark backgrounds. */
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.45), 0 1px 3px 1px rgb(0 0 0 / 0.25);
+  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.50), 0 2px 6px 2px rgb(0 0 0 / 0.30);
+  --elevation-3: 0 1px 3px rgb(0 0 0 / 0.55), 0 4px 8px 3px rgb(0 0 0 / 0.35);
+}
+
+/* =============================================================================
+   KLORINE SAGE — the default color scheme
+   =============================================================================
+   Hand-picked to match the Klorine icon: a sage green frame (#9CAF88) around
+   off-white (#F7F5EF) bars and panels, with deeper sage for highlights.
+   Used when the "Sage" accent is chosen in Settings (the default); the other
+   accents use the generated palettes above.
+
+   Light: "Sage & Off-White".   Dark: "Forest" (deep green, never black).
+   ========================================================================== */
+
+:root[data-theme="light"][data-palette="sage"] {
+  --app-bg:                  #9CAF88;   /* sage: the window around the bars */
+  --track-bg:                #AEBE9C;   /* light sage: tab strip, sidebar */
+  --bar-bg:                  #F7F5EF;   /* off-white: toolbar */
+  --tab-active:              #F7F5EF;   /* off-white: the tab you are on */
+  --field-bg:                #E8ECE0;   /* pale sage: address bar */
+
+  --primary:                 #566B45;   /* deep sage: icons, links, highlights */
+  --on-primary:              #F7F5EF;
+  --primary-container:       #CFDBC2;   /* soft sage: selected chips, badges */
+  --on-primary-container:    #1C2913;
+
+  --surface:                 #F7F5EF;   /* off-white */
+  --surface-container-low:   #F2F1EA;
+  --surface-container:       #EDEEE5;
+  --surface-container-high:  #E6E9DE;
+  --surface-container-highest: #DFE4D6;
+  --on-surface:              #1E2618;   /* text: deep green-black */
+
+  --surface-variant:         #DFE4D6;
+  --on-surface-variant:      #33402B;   /* secondary text and icons */
+  --outline:                 #6E7A64;
+  --outline-variant:         #C6CDBB;
+
+  --inverse-surface:         #2C3427;
+  --inverse-on-surface:      #F7F5EF;
+
+  /* Tab group colors: softer, so they sit calmly next to sage. */
+  --g-l:    0.60;
+  --g-cmax: 0.09;
+
+  /* Shadows with a hint of green, so they sit naturally on sage. */
+  --elevation-1: 0 1px 2px rgb(38 50 28 / 0.20), 0 1px 3px 1px rgb(38 50 28 / 0.10);
+  --elevation-2: 0 1px 2px rgb(38 50 28 / 0.22), 0 2px 6px 2px rgb(38 50 28 / 0.12);
+  --elevation-3: 0 1px 3px rgb(38 50 28 / 0.24), 0 4px 8px 3px rgb(38 50 28 / 0.14);
+}
+
+:root[data-theme="dark"][data-palette="sage"] {
+  --app-bg:                  #26301F;   /* deep forest green */
+  --track-bg:                #1F2819;
+  --bar-bg:                  #313C2A;
+  --tab-active:              #3D4935;
+  --field-bg:                #252F1F;
+
+  --primary:                 #9CAF88;   /* the Klorine sage */
+  --on-primary:              #1A2412;
+  --primary-container:       #485A3B;
+  --on-primary-container:    #E1EBD5;
+
+  --surface:                 #29331F;
+  --surface-container-low:   #2D3725;
+  --surface-container:       #323D2A;
+  --surface-container-high:  #38442F;
+  --surface-container-highest: #3F4B35;
+  --on-surface:              #F7F5EF;   /* text: off-white */
+
+  --surface-variant:         #3F4B35;
+  --on-surface-variant:      #C9D1BE;
+  --outline:                 #94A08A;
+  --outline-variant:         #4A5741;
+
+  --inverse-surface:         #E8EADF;
+  --inverse-on-surface:      #283024;
+
+  /* Tab group colors: soft and light on dark green. */
+  --g-l:    0.80;
+  --g-cmax: 0.08;
+}
+
+
+/* =============================================================================
+   2. PAGE BASICS
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/* Stack the bars from top to bottom; the page area takes what is left. */
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font);
+  font-size: 14px;
+  background: var(--app-bg);
+  color: var(--on-surface);
+  user-select: none;                 /* toolbar text is not selectable */
+  transition: background-color var(--medium) var(--ease), color var(--medium) var(--ease);
+}
+
+/* The "hidden" attribute must always win over display rules below. */
+[hidden] { display: none !important; }
+
+/* Material Symbols icons. FILL 0 = outlined, FILL 1 = filled in. */
+.material-symbols-rounded {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  overflow: hidden;                  /* hides the icon's name if the font is slow */
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  transition: font-variation-settings var(--medium) var(--ease);
+}
+
+/* A visible ring when moving around with the keyboard (Tab key). */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+
+/* =============================================================================
+   3. ICON BUTTONS
+   =============================================================================
+   A 40x40 button with 12px corners. The ::before layer is the ripple: a
+   circle that grows from the center on hover and floods the button on press.
+   ========================================================================== */
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  overflow: hidden;                  /* keeps the ripple inside the corners */
+  transition: color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+
+/* The ripple circle. Starts invisible and shrunk to nothing. */
+.icon-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0);
+  transition: transform var(--medium) var(--ease), opacity var(--medium) var(--ease);
+}
+
+/* Hover: the circle grows to fill the button at 8% strength. */
+.icon-btn:hover:not(:disabled)::before {
+  opacity: 0.08;
+  transform: scale(1);
+}
+
+/* Press: the circle overflows into the corners and gets a little stronger. */
+.icon-btn:active:not(:disabled)::before {
+  opacity: 0.14;
+  transform: scale(1.5);
+}
+
+.icon-btn:hover:not(:disabled) { color: var(--on-surface); }
+.icon-btn:active:not(:disabled) { transform: scale(0.94); }
+
+/* A button that cannot be used right now (e.g. Back with no history). */
+.icon-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+/* "On" state for toggle buttons (reader mode, an open pop-up). */
+.icon-btn.active {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+/* Smaller version, used inside the address bar. */
+.icon-btn.small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.icon-btn.small .material-symbols-rounded {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+
+/* =============================================================================
+   4. TAB STRIP
+   ========================================================================== */
+
+/* A rounded, slightly sunken track that holds the tabs. */
+.tab-strip {
+  grid-area: tabs;                   /* its place when tabs are on the side */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 8px 0;
+  padding: 4px;
+  border-radius: var(--radius-bar);
+  background: var(--track-bg);
+  transition: background-color var(--medium) var(--ease);
+}
+
+/* The row of tabs. Tabs shrink as more are opened; once they reach their
+   smallest size the row scrolls sideways instead of running off the window
+   (mouse wheel, or it follows the active tab). The padding and matching
+   negative margin leave room for the active tab's shadow. */
+.tab-list {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  margin: -4px;
+  overflow-x: auto;
+  scrollbar-width: none;             /* hide the scrollbar itself */
+}
+.tab-list::-webkit-scrollbar,
+.bookmarks-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  width: 220px;                      /* ideal width; shrinks when crowded */
+  min-width: 96px;                   /* never too small to read or click */
+  max-width: 220px;
+  height: 36px;
+  padding: 0 6px 0 12px;
+  border-radius: var(--radius-tab);
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background-color var(--medium) var(--ease),
+    box-shadow var(--medium) var(--ease),
+    color var(--fast) var(--ease);
+}
+
+/* Inactive tab, on hover: a faint highlight. */
+.tab:hover {
+  background: color-mix(in srgb, var(--on-surface) 8%, transparent);
+  color: var(--on-surface);
+}
+
+/* The active tab: a raised surface with a shadow. */
+.tab.active {
+  background: var(--tab-active);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-1);
+}
+
+/* In split view, the tab shown in the other half gets a thin outline. */
+.tab.in-split:not(.active) {
+  box-shadow: inset 0 0 0 1px var(--outline-variant);
+  color: var(--on-surface);
+}
+
+/* The website's own icon (favicon). Shown in place of the globe icon. */
+.tab-favicon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0 1px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.tab-icon {
+  flex: none;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+}
+
+/* While the page loads, the icon becomes a spinning circle. */
+.tab.loading .tab-icon { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tab-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;           /* long titles end in "..." */
+}
+
+/* The close (X) button: hidden until you hover over the tab. */
+.tab-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.tab-close .material-symbols-rounded {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+.tab:hover .tab-close,
+.tab-close:focus-visible { opacity: 1; }
+
+.new-tab-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+/* The words "New tab" next to the + only appear when tabs are on the side. */
+.new-tab-label { display: none; }
+
+
+/* =============================================================================
+   5. NAVIGATION TOOLBAR AND ADDRESS BAR
+   ========================================================================== */
+
+/* A rounded, slightly raised bar holding the buttons and address bar. */
+.toolbar {
+  grid-area: toolbar;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 8px 0;
+  padding: 6px;
+  border-radius: var(--radius-bar);
+  background: var(--bar-bg);
+  box-shadow: var(--elevation-1);
+  transition: background-color var(--medium) var(--ease);
+}
+
+.nav-cluster,
+.action-cluster {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+/* ---------- The pill-shaped address bar ---------- */
+.address-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;                           /* use all the space between the clusters */
+  min-width: 0;
+  height: 44px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--field-bg);
+  border: 1px solid transparent;
+  transition:
+    background-color var(--medium) var(--ease),
+    box-shadow var(--medium) var(--ease),
+    border-color var(--fast) var(--ease);
+}
+
+.address-bar:hover { box-shadow: var(--elevation-1); }
+
+/* While typing: lifts up, brightens, and gets a colored border. */
+.address-bar:focus-within {
+  background: var(--surface);
+  border-color: var(--primary);
+  box-shadow: var(--elevation-2);
+}
+
+/* ---------- Security badge (lock / warning) ---------- */
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 6px;
+  justify-content: center;
+  border-radius: 16px;
+  color: var(--on-surface-variant);
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color var(--medium) var(--ease), color var(--medium) var(--ease);
+}
+.security-badge .material-symbols-rounded {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Secure (https): tinted with the accent color, filled lock. */
+.security-badge.secure {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+.security-badge.secure .material-symbols-rounded { font-variation-settings: "FILL" 1; }
+
+/* Not secure (http): red warning with a text label. */
+.security-badge.insecure {
+  padding: 0 10px 0 8px;
+  background: color-mix(in srgb, var(--error) 14%, transparent);
+  color: var(--error);
+}
+
+/* The label is only shown for the "Not secure" state. */
+.security-label:empty { display: none; }
+
+/* ---------- The text field ---------- */
+.address-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 14px var(--font);
+  letter-spacing: 0.1px;
+}
+.address-input::placeholder { color: var(--on-surface-variant); }
+.address-input::selection {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+/* Bookmark star: filled and colored when the page is bookmarked. */
+#bookmark-button.bookmarked { color: var(--primary); }
+#bookmark-button.bookmarked .material-symbols-rounded { font-variation-settings: "FILL" 1; }
+
+
+/* =============================================================================
+   6. PROGRESS BAR
+   =============================================================================
+   Web pages do not report an exact percentage, so the bar creeps toward 90%
+   while the page loads, then snaps to 100% and fades out when it finishes.
+   ========================================================================== */
+
+.progress-track {
+  grid-area: progress;
+  flex: none;
+  height: 3px;
+  margin: 3px 32px 0;                /* inset so it follows the rounded bars */
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0;
+}
+
+.progress-bar.loading {
+  width: 90%;
+  opacity: 1;
+  transition: width 10s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.progress-bar.done {
+  width: 100%;
+  opacity: 0;
+  transition: width 200ms var(--ease), opacity 300ms var(--ease) 200ms;
+}
+
+
+/* =============================================================================
+   7. BOOKMARKS BAR
+   ========================================================================== */
+
+/* A rounded track holding the bookmark chips. */
+.bookmarks-bar {
+  grid-area: bookmarks;
+  display: flex;
+  gap: 6px;
+  flex: none;
+  margin: 4px 8px 0;
+  padding: 4px 6px;
+  border-radius: var(--radius-bar);
+  background: var(--track-bg);
+  overflow-x: auto;                  /* scrolls sideways when full */
+  scrollbar-width: none;
+}
+
+/* Each bookmark is a Material "assist chip". */
+.bookmark-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;                        /* keep a readable size; the bar scrolls */
+  max-width: 180px;
+  height: 28px;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 14px;               /* pill-shaped */
+  background: transparent;
+  color: var(--on-surface-variant);
+  font: 500 12px var(--font);
+  cursor: pointer;
+  transition: background-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.bookmark-chip:hover {
+  background: color-mix(in srgb, var(--on-surface) 8%, transparent);
+  color: var(--on-surface);
+}
+.bookmark-chip .material-symbols-rounded {
+  flex: none;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
+  font-variation-settings: "FILL" 1;
+}
+.bookmark-chip span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/* =============================================================================
+   8. PAGE AREA AND SPLIT VIEW
+   =============================================================================
+   A rounded, slightly raised panel that holds the websites.
+   ========================================================================== */
+
+.page-area {
+  grid-area: page;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 6px 8px 8px;
+  border-radius: var(--radius-page);
+  /* Always white, like every browser: many websites set no background of
+     their own and rely on it, so a dark one would make their text unreadable. */
+  background: #ffffff;
+  box-shadow: var(--elevation-1);
+  overflow: hidden;                  /* clips the website to the round corners */
+}
+
+/* Every tab's webview sits in the page area, stacked on top of each other.
+   All are hidden (but stay loaded) unless renderer.js marks them as the
+   left or right pane. Electron advises against display:none for webviews,
+   so visibility is used instead. */
+.page-area webview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+.page-area webview.pane-left,
+.page-area webview.pane-right { visibility: visible; }
+
+/* ---------- Error panel ----------
+   Covers a page that failed to load or crashed, so the area is never just
+   blank. It takes the same position as that tab's webview. */
+.page-message {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: var(--surface);
+  color: var(--on-surface);
+  text-align: center;
+}
+/* Only shown for a tab that is on screen. */
+.page-message:not(.pane-left):not(.pane-right) { display: none; }
+.page-message-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: var(--on-surface-variant);
+}
+.page-message h2 {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: 500;
+}
+.page-message p {
+  max-width: 440px;
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+  user-select: text;
+}
+
+/* ---------- Built-in start page ----------
+   Shown in a tab that has no website loaded: a search box and nothing else.
+   It takes the same position as that tab's webview. */
+.start-page {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 24px 12vh;           /* sits a little above the middle */
+  background-color: var(--surface);
+  background-size: cover;            /* the wallpaper fills the page...    */
+  background-position: center bottom;/* ...keeping its bottom edge (hills) */
+  color: var(--on-surface);
+  text-align: center;
+}
+
+/* ---------- Wallpaper (chosen in Settings) ---------- */
+:root[data-wallpaper="default"] .start-page {
+  background-image: url("assets/wallpaper-sage.svg");
+}
+:root[data-theme="dark"][data-wallpaper="default"] .start-page {
+  background-image: url("assets/wallpaper-forest.svg");
+}
+:root[data-wallpaper="custom"] .start-page {
+  background-image: var(--custom-wallpaper);
+}
+
+/* The card holding the logo, name and search box. On a wallpaper it is a
+   soft frosted panel, so it stays readable on any picture; with no
+   wallpaper it is invisible. */
+.start-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(640px, 100%);
+  padding: 32px 40px 28px;
+  border-radius: 32px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  box-shadow: var(--elevation-2);
+}
+:root[data-wallpaper="plain"] .start-card {
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+/* Only shown for a tab that is on screen. */
+.start-page:not(.pane-left):not(.pane-right) { display: none; }
+.start-logo {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 4px;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.start-page h1 {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 500;
+}
+.start-page p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--on-surface-variant);
+}
+/* The search box: the same pill shape as the address bar, but larger. */
+.start-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(560px, 100%);
+  height: 52px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--surface-container-highest);
+  color: var(--on-surface-variant);
+  transition: background-color var(--medium) var(--ease), box-shadow var(--medium) var(--ease), border-color var(--fast) var(--ease);
+}
+.start-search:hover { box-shadow: var(--elevation-1); }
+.start-search:focus-within {
+  background: var(--surface);
+  border-color: var(--primary);
+  box-shadow: var(--elevation-2);
+}
+.start-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 16px var(--font);
+  user-select: text;
+}
+.start-search input::placeholder { color: var(--on-surface-variant); }
+
+/* ---------- Buttons with text ---------- */
+.filled-btn,
+.text-btn {
+  height: 40px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 20px;
+  font: 500 14px var(--font);
+  cursor: pointer;
+  transition: box-shadow var(--fast) var(--ease), background-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.filled-btn {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.filled-btn:hover { box-shadow: var(--elevation-1); }
+.text-btn {
+  padding: 0 12px;
+  background: transparent;
+  color: var(--primary);
+}
+.text-btn:hover { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+.filled-btn:active,
+.text-btn:active { transform: scale(0.97); }
+
+/* ---------- Split view: two pages side by side with a 6px gap ---------- */
+.page-area.split .pane-left  { width: calc(50% - 3px); }
+.page-area.split .pane-right { left: calc(50% + 3px); width: calc(50% - 3px); }
+
+/* The gap between the two pages, in the window's background color. */
+.split-divider {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 3px);
+  width: 6px;
+  background: var(--app-bg);
+}
+
+/* A colored line along the top of the page that the toolbar is controlling.
+   It slides across when you click into the other page. */
+.pane-indicator {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: calc(50% - 3px);
+  height: 3px;
+  background: var(--primary);
+  transition: left var(--medium) var(--ease);
+}
+.page-area.split .split-divider,
+.page-area.split .pane-indicator { display: block; }
+.page-area.split.focus-right .pane-indicator { left: calc(50% + 3px); }
+
+/* ---------- A page in full screen (a video, for example) ----------
+   The tab strip and toolbar are hidden and that page fills the window. */
+body.page-fullscreen .tab-strip,
+body.page-fullscreen .toolbar,
+body.page-fullscreen .progress-track,
+body.page-fullscreen .bookmarks-bar,
+body.page-fullscreen .split-divider,
+body.page-fullscreen .pane-indicator { display: none; }
+body.page-fullscreen .page-area {
+  margin: 0;
+  border-radius: 0;
+}
+body.page-fullscreen .page-area webview.fullscreen {
+  z-index: 3;
+  left: 0;
+  width: 100%;
+}
+
+
+/* =============================================================================
+   8b. TABS ON THE SIDE (VERTICAL TABS)
+   =============================================================================
+   Switched on from the settings panel, which adds the class "vertical-tabs"
+   to <body>. The window becomes a grid:
+
+       +-----------------------------------+
+       |              toolbar              |
+       +---------+-------------------------+
+       |         |  progress / bookmarks   |
+       |  tabs   +-------------------------+
+       |         |                         |
+       |         |          page           |
+       +---------+-------------------------+
+   ========================================================================== */
+
+body.vertical-tabs {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "toolbar  toolbar"
+    "tabs     progress"
+    "tabs     bookmarks"
+    "tabs     page";
+}
+
+body.vertical-tabs .toolbar { margin-top: 8px; }
+
+/* The sidebar: a tall rounded track, tabs stacked top to bottom. */
+body.vertical-tabs .tab-strip {
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 0;
+  margin: 6px 0 8px 8px;
+  padding: 6px;
+}
+
+/* The list scrolls up and down when there are too many tabs to fit. */
+body.vertical-tabs .tab-list {
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Each tab takes the full width of the sidebar. */
+body.vertical-tabs .tab {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 40px;
+  border-radius: 20px;
+}
+
+/* The + button becomes a full-width "New tab" row under the last tab. */
+body.vertical-tabs .new-tab-btn {
+  width: 100%;
+  height: 40px;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 12px;
+  border-radius: 20px;
+  font: 500 13px var(--font);
+}
+body.vertical-tabs .new-tab-btn::before { border-radius: inherit; }
+body.vertical-tabs .new-tab-label { display: inline; }
+
+/* The progress bar lines up with the page, not the whole window. */
+body.vertical-tabs .progress-track { margin: 3px 24px 0; }
+body.vertical-tabs .bookmarks-bar  { margin: 6px 8px 0; }
+
+/* A page in full screen still fills the whole window. */
+body.vertical-tabs.page-fullscreen { display: flex; }
+
+
+/* =============================================================================
+   8c. TAB GROUPS
+   =============================================================================
+   renderer.js gives each group label, grouped tab and color swatch two
+   values: --g-hue (where the color sits on the color wheel) and --g-c (1 for
+   a color, 0 for grey). The actual color is worked out here, using the
+   theme's --g-l and --g-cmax so it suits light and dark.
+   ========================================================================== */
+
+.group-chip,
+.tab.grouped,
+.group-swatch,
+.menu-dot {
+  --g-color: oklch(var(--g-l) calc(var(--g-cmax) * var(--g-c, 1)) var(--g-hue, 260));
+}
+
+/* ---------- The group's label in the tab strip ---------- */
+.group-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 6px;
+  flex: none;
+  max-width: 160px;
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 14px;               /* pill-shaped */
+  background: var(--g-color);
+  color: var(--g-on);
+  font: 500 12px var(--font);
+  cursor: pointer;
+  transition: box-shadow var(--fast) var(--ease), transform var(--fast) var(--ease), background-color var(--medium) var(--ease);
+}
+.group-chip:hover  { box-shadow: var(--elevation-1); }
+.group-chip:active { transform: scale(0.95); }
+
+.group-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* A group without a name is shown as a plain colored dot. */
+.group-chip.unnamed { padding: 0 6px; min-width: 20px; height: 20px; border-radius: 10px; }
+.group-chip.unnamed .group-name { display: none; }
+
+/* When a group is folded away, its label shows how many tabs are inside. */
+.group-count:empty { display: none; }
+.group-count {
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--g-on) 25%, transparent);
+  font-size: 11px;
+  text-align: center;
+}
+
+/* The dot and arrow are only used when tabs are on the side. */
+.group-dot,
+.group-arrow { display: none; }
+
+/* ---------- Tabs that belong to a group ----------
+   A short line in the group's color along the bottom of the tab. */
+.tab.grouped::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 3px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--g-color);
+  pointer-events: none;
+}
+
+/* Tabs of a folded-away group are hidden. */
+.tab.collapsed { display: none; }
+
+/* ---------- Tabs on the side ----------
+   The label becomes a full-width heading with a colored dot and an arrow,
+   and each tab in the group gets a colored line down its left edge. */
+body.vertical-tabs .group-chip {
+  align-self: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+  max-width: none;
+  height: 32px;
+  margin-top: 4px;
+  padding: 0 8px 0 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--g-color) 22%, transparent);
+  color: var(--on-surface);
+}
+body.vertical-tabs .group-chip.unnamed .group-name {
+  display: inline;
+}
+body.vertical-tabs .group-chip.unnamed .group-name::before {
+  content: "Unnamed group";
+  color: var(--on-surface-variant);
+}
+body.vertical-tabs .group-dot {
+  display: block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--g-color);
+}
+body.vertical-tabs .group-count {
+  background: color-mix(in srgb, var(--g-color) 35%, transparent);
+  color: var(--on-surface);
+}
+body.vertical-tabs .group-arrow {
+  display: block;
+  flex: none;
+  margin-left: auto;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: transform var(--medium) var(--ease);
+}
+body.vertical-tabs .group-chip.collapsed .group-arrow { transform: rotate(-90deg); }
+
+body.vertical-tabs .tab.grouped::after {
+  left: 4px;
+  right: auto;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  height: auto;
+}
+
+/* ---------- Tab menu and group editor ---------- */
+.menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 14;
+}
+
+.menu {
+  position: fixed;
+  z-index: 15;
+  min-width: 220px;
+  max-width: 300px;
+  padding: 6px;
+  border-radius: var(--radius-container);
+  background: var(--surface-container);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-2);
+  animation: popover-in var(--medium) var(--ease);
+  transform-origin: top left;
+}
+
+.menu-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 14px var(--font);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--fast) var(--ease);
+}
+.menu-entry:hover,
+.menu-entry:focus-visible {
+  background: color-mix(in srgb, var(--on-surface) 8%, transparent);
+  outline: none;
+}
+.menu-entry .material-symbols-rounded {
+  flex: none;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--on-surface-variant);
+}
+.menu-entry span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.menu-heading {
+  padding: 8px 12px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+}
+
+.menu-divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--outline-variant);
+}
+
+/* A dot in a group's color, in place of an icon. */
+.menu-dot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background: var(--g-color);
+}
+
+/* The group editor: name field, color row and actions. */
+.group-editor {
+  width: 284px;
+  padding: 12px 6px 6px;
+}
+.group-editor .text-field { width: calc(100% - 12px); margin: 0 6px; }
+
+.group-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 12px 6px 6px;
+}
+.group-swatch {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: var(--g-color);
+  background-clip: content-box;      /* leaves a gap between color and ring */
+  cursor: pointer;
+  transition: transform var(--fast) var(--ease), padding var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.group-swatch:hover { transform: scale(1.12); }
+.group-swatch.selected {
+  padding: 3px;
+  border-color: var(--on-surface);
+}
+
+
+/* =============================================================================
+   8d. SHIELDS
+   ========================================================================== */
+
+/* ---------- The shield button in the address bar ----------
+   A round button that widens into a pill to show the blocked count. */
+.icon-btn.shields-btn {
+  width: auto;
+  min-width: 32px;
+  gap: 2px;
+  padding: 0 7px;
+  border-radius: 16px;
+}
+.shields-btn::before { border-radius: inherit; }
+.shields-count {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.shields-count:empty { display: none; }
+
+/* Something was blocked: the shield fills in, in the accent color. */
+.shields-btn.working { color: var(--primary); }
+.shields-btn.working .material-symbols-rounded { font-variation-settings: "FILL" 1; }
+
+/* JavaScript is switched off on this site: tinted background. */
+.shields-btn.scripts-off,
+.shields-btn.active-panel {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+/* Shields switched off for this site: a plain outline shield. */
+.shields-btn.shields-down { color: var(--on-surface-variant); }
+
+/* ---------- The panel ---------- */
+/* With Shields off, the counts are greyed out (nothing is being blocked). */
+.shields-panel.shields-down .shields-stats { opacity: 0.45; }
+
+.shields-panel {
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  padding: 16px;
+  transform-origin: top right;
+}
+
+.shields-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.shields-head-icon {
+  flex: none;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: var(--primary);
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 40;
+}
+.shields-head-text { min-width: 0; }
+.shields-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+.shields-host {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  user-select: text;
+}
+
+/* The two counts, side by side on rounded tiles. */
+.shields-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.shields-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--radius-container);
+  background: var(--surface-container-highest);
+}
+.shields-num {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.shields-stat-label {
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--on-surface-variant);
+}
+
+/* ---------- On/off switch (Material 3 style) ---------- */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 4px 10px 2px;
+  cursor: pointer;
+}
+.switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.switch-label { font-size: 14px; font-weight: 500; }
+.switch-hint  { font-size: 12px; line-height: 1.35; color: var(--on-surface-variant); }
+
+.switch {
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 32px;
+  margin: 0;
+  border: 2px solid var(--outline);
+  border-radius: 16px;
+  background: var(--surface-container-highest);
+  appearance: none;
+  cursor: pointer;
+  transition: background-color var(--medium) var(--ease), border-color var(--medium) var(--ease);
+}
+/* The round knob. Small when off, larger and moved right when on. */
+.switch::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--outline);
+  transform: translateY(-50%);
+  transition: left var(--medium) var(--ease), width var(--medium) var(--ease), height var(--medium) var(--ease), background-color var(--medium) var(--ease);
+}
+.switch:checked {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.switch:checked::before {
+  left: 22px;
+  width: 24px;
+  height: 24px;
+  background: var(--on-primary);
+}
+.switch:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- "Wipe site data" button (Material "tonal" button) ---------- */
+.tonal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  margin-top: 6px;
+  border: none;
+  border-radius: 20px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font: 500 14px var(--font);
+  cursor: pointer;
+  transition: box-shadow var(--fast) var(--ease), transform var(--fast) var(--ease), opacity var(--fast) var(--ease);
+}
+.tonal-btn:hover    { box-shadow: var(--elevation-1); }
+.tonal-btn:active   { transform: scale(0.98); }
+.tonal-btn:disabled { opacity: 0.6; cursor: progress; }
+.tonal-btn .material-symbols-rounded { font-size: 20px; width: 20px; height: 20px; }
+
+.shields-note {
+  margin: 8px 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--on-surface-variant);
+}
+
+
+/* ---------- Soundscapes ---------- */
+
+/* The headphones button: tinted while sound is playing or its panel is open. */
+#sound-button.playing,
+#bookmarks-button.panel-open,
+#sound-button.panel-open {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+#sound-button.playing .material-symbols-rounded {
+  font-variation-settings: "FILL" 1;
+  animation: sound-pulse 2.4s ease-in-out infinite;
+}
+@keyframes sound-pulse {
+  50% { transform: scale(0.88); }
+}
+
+.sound-panel {
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  padding: 16px;
+  transform-origin: top right;
+}
+.sound-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.sound-head-icon {
+  flex: none;
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  color: var(--primary);
+}
+.sound-title { font-size: 18px; font-weight: 500; }
+.sound-sub {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--on-surface-variant);
+}
+
+/* One rounded row per sound: on/off pill on the left, volume on the right. */
+.sound-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 24px;
+  background: var(--surface-container-highest);
+  transition: background-color var(--medium) var(--ease);
+}
+.sound-row.on { background: var(--primary-container); }
+
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  width: 118px;
+  height: 40px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--on-surface);
+  font: 500 14px var(--font);
+  cursor: pointer;
+  transition: background-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.sound-toggle:hover  { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+.sound-toggle:active { transform: scale(0.96); }
+.sound-toggle .material-symbols-rounded { color: var(--on-surface-variant); }
+/* The moment between clicking and the sound starting. */
+.sound-row.starting .sound-toggle { opacity: 0.7; cursor: progress; }
+.sound-row.on .sound-toggle {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.sound-row.on .sound-toggle .material-symbols-rounded {
+  color: var(--on-primary);
+  font-variation-settings: "FILL" 1;
+}
+
+/* Volume sliders, in the accent color. */
+.sound-volume {
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.sound-master {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 10px 2px 0 10px;
+  border-top: 1px solid var(--outline-variant);
+}
+.sound-master .material-symbols-rounded { color: var(--on-surface-variant); }
+.sound-master .text-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ---------- Start page widgets (Markets, Weather) ----------
+   Small frosted cards floating over the start page. renderer.js sets their
+   left/top (they can be dragged anywhere by their title bar). */
+
+.start-page { overflow-y: auto; justify-content: safe center; }
+.start-card { flex: none; }
+
+/* Up and down colors (with arrows and signs too, never color alone). */
+:root[data-theme="light"] { --up: #2E7D32; --down: #B3261E; }
+:root[data-theme="dark"]  { --up: #8FD694; --down: #F2B8B5; }
+
+:root[data-stocks="off"] .widget-stocks,
+:root[data-weather="off"] .widget-weather { display: none; }
+
+.widget {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  width: 272px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 32px);   /* never taller than the page; scrolls inside */
+  padding: 6px 8px 8px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  box-shadow: var(--elevation-2);
+  color: var(--on-surface);
+  text-align: left;
+  font-size: 13px;
+}
+:root[data-wallpaper="plain"] .widget {
+  background: var(--surface-container-low);
+  backdrop-filter: none;
+}
+.widget.dragging {
+  box-shadow: var(--elevation-3, 0 8px 24px rgb(0 0 0 / 0.25));
+  transform: scale(1.01);
+}
+
+/* Title bar: the "grip" you drag by, and a few small buttons. */
+.widget-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.widget.dragging .widget-head { cursor: grabbing; }
+.widget-grip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 12px;
+  font: 500 14px var(--font);
+  outline: none;
+}
+.widget-grip:focus-visible { box-shadow: 0 0 0 2px var(--primary); }
+.widget-grip .material-symbols-rounded { font-size: 18px; color: var(--primary); }
+.widget-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.widget-tools {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: none;
+}
+.widget-tools .icon-btn.small { width: 30px; height: 30px; }
+.widget-tools .icon-btn.small .material-symbols-rounded { font-size: 18px; }
+.widget-updated {
+  margin-right: 2px;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+}
+
+.widget-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+.widget .widget-empty {
+  margin: 6px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--on-surface-variant);
+}
+.widget .widget-note {
+  margin: 6px 8px 0;
+  font-size: 10.5px;
+  color: var(--on-surface-variant);
+}
+
+/* ---- Markets rows ---- */
+.stock-list {
+  display: flex;
+  flex-direction: column;
+}
+.stock-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.stock-open {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 13px var(--font);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--fast) var(--ease), padding var(--fast) var(--ease);
+}
+.stock-open:hover { background: color-mix(in srgb, var(--on-surface) 7%, transparent); }
+.stock-label {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.stock-name,
+.stock-symbol {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.stock-name { font-weight: 500; font-size: 12.5px; }
+.stock-symbol { font-size: 10.5px; color: var(--on-surface-variant); }
+.stock-error .stock-symbol { color: var(--down); }
+
+.stock-spark {
+  flex: none;
+  width: 44px;
+  height: 18px;
+  overflow: visible;
+}
+.stock-spark polyline {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.stock-spark.up polyline   { stroke: var(--up); }
+.stock-spark.down polyline { stroke: var(--down); }
+.stock-spark.flat polyline { stroke: var(--outline); }
+.stock-spark-base {
+  stroke: var(--outline);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.stock-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: none;
+  min-width: 70px;
+}
+.stock-price {
+  font-weight: 500;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.stock-change {
+  margin-top: 1px;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.stock-change.up   { color: var(--up);   background: color-mix(in srgb, var(--up) 14%, transparent); }
+.stock-change.down { color: var(--down); background: color-mix(in srgb, var(--down) 14%, transparent); }
+.stock-change.flat { color: var(--on-surface-variant); background: var(--surface-container-highest); }
+
+/* The remove (x) button: hidden until you point at the row; the row makes
+   room for it so nothing is covered. */
+.stock-remove {
+  position: absolute;
+  right: 4px;
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+}
+.stock-row .stock-remove.icon-btn.small { width: 28px; height: 28px; }
+.stock-row .stock-remove .material-symbols-rounded { font-size: 18px; }
+.stock-row:hover .stock-remove,
+.stock-remove:focus-visible { opacity: 1; }
+.stock-row:hover .stock-open,
+.stock-row:focus-within .stock-open { padding-right: 36px; }
+
+/* ---- Search box + list of matches (stocks and weather places) ---- */
+.widget-finder[hidden] { display: none; }
+.widget-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  margin: 6px 2px 0;
+  padding: 0 12px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 17px;
+  color: var(--on-surface-variant);
+  transition: border-color var(--fast) var(--ease);
+}
+.widget-search .material-symbols-rounded { font-size: 18px; }
+.widget-search:focus-within { border-color: var(--primary); }
+.widget-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 13px var(--font);
+  user-select: text;
+}
+.widget-search input::placeholder { color: var(--on-surface-variant); }
+.widget-search input:disabled { cursor: default; }
+
+.widget-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 4px 2px 0;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-container-high);
+}
+.widget-suggest[hidden] { display: none; }
+.widget-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--on-surface);
+  text-align: left;
+  cursor: pointer;
+}
+.widget-option:hover,
+.widget-option.active { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.widget-option.added { opacity: 0.6; }
+.widget-option-name {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 500 12.5px var(--font);
+}
+.widget-option-detail {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 400 11px var(--font);
+  color: var(--on-surface-variant);
+}
+.widget-suggest-msg {
+  padding: 6px 10px;
+  font: 400 12px var(--font);
+  color: var(--on-surface-variant);
+}
+
+/* ---- Weather ---- */
+.wx-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 6px 0;
+}
+.wx-now {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.material-symbols-rounded.wx-icon {
+  font-size: 36px;
+  color: var(--primary);
+  font-variation-settings: 'FILL' 1;
+}
+.wx-temp {
+  font: 400 30px/1 var(--font);
+  font-variant-numeric: tabular-nums;
+}
+.wx-about {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  margin-left: 4px;
+}
+.wx-place {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+.wx-condition { font-size: 12px; color: var(--on-surface-variant); }
+.wx-details { font-size: 11.5px; color: var(--on-surface-variant); }
+
+.wx-aqi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: var(--surface-container-high);
+}
+.wx-aqi-badge {
+  flex: none;
+  min-width: 36px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font: 700 13px var(--font);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.wx-aqi-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.wx-aqi-name { font-weight: 500; font-size: 12.5px; }
+.wx-aqi-detail {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10.5px;
+  color: var(--on-surface-variant);
+}
+
+.wx-days {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.wx-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 0;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.wx-day-name { color: var(--on-surface-variant); }
+.material-symbols-rounded.wx-day-icon { font-size: 20px; color: var(--primary); }
+.wx-day-range { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Settings: small headings inside the "Start page widgets" setting. */
+.setting-sublabel {
+  margin: 12px 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+}
+#reset-widgets { margin-top: 6px; }
+
+/* ---------- Bookmarks panel (toolbar button) ---------- */
+.menu.bookmarks-panel {
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  max-height: min(560px, calc(100vh - 90px));
+  padding: 12px 8px 10px;
+  transform-origin: top right;
+}
+.menu.bookmarks-panel[hidden] { display: none; }
+.bookmarks-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 8px 10px;
+}
+.bookmarks-title { font: 500 18px var(--font); }
+.bookmarks-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  height: 38px;
+  margin: 0 4px 8px;
+  padding: 0 12px;
+  border-radius: 19px;
+  background: var(--surface-container-highest);
+  color: var(--on-surface-variant);
+}
+.bookmarks-search .material-symbols-rounded { font-size: 20px; }
+.bookmarks-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 14px var(--font);
+  user-select: text;
+}
+.bookmarks-search input::placeholder { color: var(--on-surface-variant); }
+.bookmarks-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 2px;
+}
+.bookmarks-empty,
+.bookmarks-note {
+  margin: 8px 12px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--on-surface-variant);
+}
+.bookmarks-note {
+  flex: none;
+  margin: 8px 12px 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--outline-variant);
+  font-size: 11.5px;
+}
+
+/* A folder heading: click to fold or unfold; the bin removes the folder. */
+.bookmark-folder {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+.bookmark-folder-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  padding: 2px 8px 2px 4px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--on-surface);
+  font: 500 13px var(--font);
+  text-align: left;
+  cursor: pointer;
+}
+.bookmark-folder-toggle:hover { background: color-mix(in srgb, var(--on-surface) 7%, transparent); }
+.bookmark-folder-toggle .material-symbols-rounded { font-size: 20px; color: var(--on-surface-variant); }
+.bookmark-folder-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.bookmark-folder-own,
+.bookmark-folder-where {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bookmark-folder-where { font: 400 11px var(--font); color: var(--on-surface-variant); }
+
+/* Slim scrollbars that match the theme, inside panels and widgets. */
+.bookmarks-list,
+.import-sources,
+.widget-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline-variant) transparent;
+}
+.bookmark-folder-count {
+  flex: none;
+  padding: 0 7px;
+  border-radius: 9px;
+  background: var(--surface-container-highest);
+  font-size: 11px;
+  color: var(--on-surface-variant);
+}
+.bookmark-folder-remove { opacity: 0; }
+.bookmark-folder:hover .bookmark-folder-remove,
+.bookmark-folder-remove:focus-visible { opacity: 1; }
+.text-btn.bookmark-folder-confirm {
+  flex: none;
+  height: 30px;
+  padding: 0 10px;
+  color: var(--error, #B3261E);
+  font-size: 12.5px;
+}
+
+.bookmark-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.bookmark-open {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px 0 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-surface);
+  text-align: left;
+  cursor: pointer;
+}
+.bookmark-open:hover { background: color-mix(in srgb, var(--on-surface) 7%, transparent); }
+.bookmark-open .material-symbols-rounded { flex: none; font-size: 18px; color: var(--primary); }
+.bookmark-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.bookmark-title,
+.bookmark-host {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bookmark-title { font: 400 13.5px var(--font); }
+.bookmark-host { font: 400 11.5px var(--font); color: var(--on-surface-variant); }
+.bookmark-remove {
+  position: absolute;
+  right: 4px;
+  opacity: 0;
+}
+.bookmark-row:hover .bookmark-remove,
+.bookmark-remove:focus-visible { opacity: 1; }
+.bookmark-row:hover .bookmark-open,
+.bookmark-row:focus-within .bookmark-open { padding-right: 44px; }
+
+/* ---------- Import bookmarks dialog ---------- */
+.dialog.import-dialog { width: 420px; max-width: calc(100vw - 32px); }
+.import-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.import-sources:empty { display: none; }
+.import-source {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--on-surface);
+  text-align: left;
+  cursor: pointer;
+}
+.import-source:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.import-source .material-symbols-rounded { color: var(--primary); }
+.import-source-text { display: flex; flex-direction: column; min-width: 0; }
+.import-source-name { font: 500 14px var(--font); }
+.import-source-detail { font: 400 12px var(--font); color: var(--on-surface-variant); }
+.import-keep {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.import-keep[hidden] { display: none; }
+.import-keep input { margin-top: 2px; accent-color: var(--primary); }
+
+/* ---------- The vault: dialogs, settings, key button, saved passwords ---------- */
+
+/* The key button in the address bar; tinted while "Save password?" waits. */
+#key-button[hidden] { display: none; }
+#key-button.attention {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+#key-button.attention .material-symbols-rounded { font-variation-settings: "FILL" 1; }
+
+/* The general dialog (create vault, unlock, confirmations). */
+/* Always on top of the other windows (e.g. asked from "Saved passwords"). */
+#ask-scrim { z-index: 22; }
+.dialog.ask-dialog { width: 400px; max-width: calc(100vw - 32px); }
+.ask-fields { display: flex; flex-direction: column; gap: 10px; }
+.ask-fields:empty { display: none; }
+.ask-field { display: flex; flex-direction: column; gap: 4px; }
+.ask-label { margin-left: 4px; font-size: 12.5px; color: var(--on-surface-variant); }
+.ask-input-row { display: flex; align-items: center; gap: 4px; }
+.ask-input-row .text-field { flex: 1; min-width: 0; }
+.dialog-error {
+  margin: 0 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--error);
+}
+.dialog-error[hidden] { display: none; }
+.dialog-actions .ask-extra { margin-right: auto; }
+.filled-btn.danger-btn { background: var(--error); color: var(--on-error, #fff); }
+.text-btn.danger-text { color: var(--error); }
+
+/* Settings -> Saved data. */
+.vault-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.vault-state-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 14px var(--font);
+}
+.vault-state-text .material-symbols-rounded { font-size: 20px; color: var(--primary); }
+.vault-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-top: 6px;
+}
+#vault-settings .tonal-btn { margin-top: 8px; }
+
+/* The "Saved passwords" window. */
+.dialog.passwords-dialog {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  gap: 8px;
+}
+.passwords-head { display: flex; align-items: center; gap: 4px; }
+.passwords-head .popover-title { flex: 1; }
+.passwords-dialog .bookmarks-search { margin: 4px 0; }
+.passwords-list {
+  flex: 1;
+  min-height: 80px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline-variant) transparent;
+}
+.password-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px 6px 8px;
+  border-radius: 12px;
+}
+.password-row:hover { background: color-mix(in srgb, var(--on-surface) 5%, transparent); }
+.password-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.password-site,
+.password-user,
+.password-secret {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.password-site { flex: 1; font: 500 14px var(--font); }
+.password-user { font: 400 12.5px var(--font); color: var(--on-surface-variant); }
+.password-secret { font: 400 12.5px var(--font); color: var(--on-surface-variant); letter-spacing: 1px; }
+.password-secret.revealed {
+  font-family: ui-monospace, Consolas, monospace;
+  letter-spacing: 0;
+  color: var(--on-surface);
+  user-select: text;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.password-tools { display: flex; align-items: center; flex: none; }
+.passwords-dialog .bookmarks-note { margin: 4px 4px 0; }
+
+/* The key button's menu. */
+.menu.logins-menu { min-width: 240px; max-width: 320px; }
+.menu-note {
+  margin: 6px 12px 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--on-surface-variant);
+}
+
+/* "Save password?" - a small card under the toolbar, top right. */
+.save-prompt {
+  position: fixed;
+  z-index: 14;
+  top: 118px;
+  right: 16px;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  padding: 16px 12px 10px 18px;
+  border-radius: var(--radius-container);
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-3);
+  animation: popover-in var(--medium) var(--ease);
+}
+.save-prompt[hidden] { display: none; }
+.save-prompt-text { font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.save-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+/* "Unlock..." inside the bookmarks panel's note. */
+.bookmarks-note .text-btn { height: 26px; padding: 0 8px; font-size: 12px; }
+
+/* ---------- Settings -> About and updates ---------- */
+.update-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.update-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.update-version { font: 500 14px var(--font); }
+.update-status { font-size: 12.5px; line-height: 1.4; color: var(--on-surface-variant); }
+.update-status:empty { display: none; }
+.update-row .tonal-btn { flex: none; margin: 0; }
+.update-bar {
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: var(--surface-container-highest);
+  overflow: hidden;
+}
+.update-bar[hidden] { display: none; }
+#update-bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--primary);
+  transition: width var(--fast) var(--ease);
+}
+/* A dot on the Settings button while an update is waiting. */
+#settings-button { position: relative; }
+#settings-button.has-update::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+}
+
+/* ---------- Wallpaper choices in Settings ---------- */
+.wallpaper-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.wallpaper-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--on-surface-variant);
+  font: 500 12px var(--font);
+  cursor: pointer;
+}
+.wallpaper-thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 10;
+  border: 2px solid var(--outline-variant);
+  border-radius: 12px;
+  background-color: var(--surface);
+  background-size: cover;
+  background-position: center bottom;
+  transition: border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.wallpaper-tile:hover .wallpaper-thumb { transform: scale(1.03); }
+.wallpaper-tile.selected .wallpaper-thumb {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.wallpaper-tile.selected { color: var(--on-surface); }
+
+.wallpaper-thumb-default { background-image: url("assets/wallpaper-sage.svg"); }
+:root[data-theme="dark"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-forest.svg"); }
+.wallpaper-thumb-custom .material-symbols-rounded { color: var(--on-surface-variant); }
+.wallpaper-thumb-custom.has-image { background-image: var(--custom-wallpaper); }
+.wallpaper-thumb-custom.has-image .material-symbols-rounded { display: none; }
+
+.wallpaper-actions {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0 0 -12px;
+}
+.setting-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--on-surface-variant);
+}
+
+
+/* =============================================================================
+   9. SETTINGS PANEL AND MESSAGE BAR
+   ========================================================================== */
+
+/* Invisible click-catcher behind the open settings panel. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.popover {
+  position: fixed;
+  top: 104px;
+  right: 12px;
+  z-index: 11;
+  width: 320px;
+  max-height: calc(100vh - 124px);
+  padding: 12px;
+  overflow-y: auto;
+  /* A slim scrollbar that stays inside the rounded corners. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline-variant) transparent;
+  border-radius: 24px;
+  background: var(--surface-container-low);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-3);
+  animation: popover-in var(--medium) var(--ease);
+  transform-origin: top right;
+}
+
+/* Pop-ups scale and fade in from the top-right corner. */
+@keyframes popover-in {
+  from { opacity: 0; transform: scale(0.92) translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.popover-title {
+  padding: 4px 8px 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ---------- Settings ---------- */
+.setting { padding: 8px; }
+
+.setting-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+}
+
+.swatch-row,
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Accent swatches sit a little closer so all seven fit on one line. */
+.swatch-row { gap: 6px; }
+
+/* Accent color swatches. Each one gets its own --swatch-hue from renderer.js
+   (or an exact --swatch-color, used for Sage). */
+.swatch {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: var(--swatch-color, oklch(0.62 0.15 var(--swatch-hue)));
+  background-clip: content-box;      /* leaves a gap between color and ring */
+  cursor: pointer;
+  transition: transform var(--fast) var(--ease), border-color var(--fast) var(--ease), padding var(--fast) var(--ease);
+}
+.swatch:hover { transform: scale(1.1); }
+.swatch.selected {
+  padding: 3px;
+  border-color: var(--primary);
+}
+
+/* Search engine choices: Material "filter chips" built on radio buttons. */
+.choice-chip input {
+  position: absolute;
+  opacity: 0;                        /* hide the real radio button */
+  pointer-events: none;
+}
+.choice-chip span {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--fast) var(--ease), color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.choice-chip span:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+.choice-chip input:checked + span {
+  border-color: transparent;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+.choice-chip input:focus-visible + span {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Home page text field (Material "outlined" style). */
+.text-field {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  outline: none;
+  background: transparent;
+  color: var(--on-surface);
+  font: 400 14px var(--font);
+  user-select: text;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.text-field:focus {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+/* Keyboard shortcut list: key on the left, what it does on the right. */
+.shortcut-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+}
+.shortcut-list div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.shortcut-list dt {
+  flex: none;
+  min-width: 92px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface-container-highest);
+  color: var(--on-surface);
+  font-weight: 500;
+  text-align: center;
+}
+.shortcut-list dd {
+  margin: 0;
+  color: var(--on-surface-variant);
+}
+
+.setting-note {
+  margin: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--outline-variant);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+}
+
+/* ---------- Sign-in dialog ---------- */
+.dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.4);
+}
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 360px;
+  padding: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-3);
+  animation: popover-in var(--medium) var(--ease);
+}
+.dialog .popover-title { padding: 4px 4px 0; font-size: 22px; }
+.dialog-text {
+  margin: 0 4px 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* ---------- Message bar ("snackbar") ---------- */
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 30;
+  max-width: 480px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--inverse-surface);
+  color: var(--inverse-on-surface);
+  font-size: 14px;
+  box-shadow: var(--elevation-3);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 16px);
+  transition: opacity var(--medium) var(--ease), transform var(--medium) var(--ease);
+}
+.snackbar.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Respect the system setting for people who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* =============================================================================
+   OUR OWN TITLE BAR (Windows, Linux)
+   =============================================================================
+   The normal title bar is hidden (see main.js). renderer.js adds the class
+   "custom-titlebar" to the page, and then:
+     - the tab strip (or the toolbar, when tabs are on the side) is where you
+       drag the window and double-click to maximize it, like Chrome
+     - space is kept free on the right for Windows' own minimize / maximize /
+       close buttons, which it draws on top of the page
+   ========================================================================== */
+
+/* How much room the window buttons take on the right. Electron reports the
+   free area as "titlebar-area"; if it does not, 146px is used (the width
+   of the three buttons on Windows 11). */
+body.custom-titlebar {
+  --controls-room: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, calc(100vw - 146px)));
+}
+
+/* Leave that room free, beside the top bar. */
+body.custom-titlebar:not(.vertical-tabs) .tab-strip,
+body.custom-titlebar.vertical-tabs .toolbar {
+  margin-right: calc(var(--controls-room) + 6px);
+}
+
+/* Where the window can be dragged. */
+body.custom-titlebar:not(.vertical-tabs) .tab-strip,
+body.custom-titlebar .toolbar {
+  -webkit-app-region: drag;
+}
+
+/* ...but everything you click or type into still works normally. Pop-ups
+   and menus are included, since they can lie over the dragging area. */
+body.custom-titlebar :is(
+  button, input, a, .tab, .group-chip, .address-bar,
+  .menu, .popover, .scrim, .menu-scrim, .dialog-scrim, .snackbar
+) {
+  -webkit-app-region: no-drag;
+}
+
+/* When a page goes full screen, the bars are hidden: no dragging area. */
+body.custom-titlebar.page-fullscreen .tab-strip,
+body.custom-titlebar.page-fullscreen .toolbar {
+  -webkit-app-region: no-drag;
+}

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+   index.html — the STRUCTURE of the browser's user interface
+  =============================================================================
+   This file only says WHAT is on screen. Two other files do the rest, and
+   BOTH must sit in the same folder as this one, with exactly these names:
+
+     styles.css   -> how everything LOOKS  (Material Design 3 colors, shapes)
+     renderer.js  -> how everything BEHAVES (tabs, buttons, shortcuts)
+
+   From top to bottom the window contains:
+     1. The tab strip
+     2. The navigation toolbar (buttons + address bar + action buttons)
+     3. The load progress bar
+     4. The bookmarks bar (only visible once you bookmark something)
+     5. The page area, where websites are shown (one or two side by side)
+     6. The settings panel, the sign-in dialog and a small message bar
+  =============================================================================
+-->
+<html lang="en" data-theme="light" data-palette="sage" data-wallpaper="default">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Security rule for THIS page (the toolbar), not for websites you visit.
+       It says: only run scripts that ship with the app; only load styles and
+       fonts from the app itself; images may come from the app (the Klorine
+       logo) or from websites (tab icons).
+       ('unsafe-inline' for styles is required by Electron's <webview> tag,
+       which styles itself internally.) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: http: data:">
+
+  <title>Klorine</title>
+
+  <!-- Klorine's fonts and icons, stored in the "fonts" folder inside the
+       app (nothing is downloaded from Google or anyone else). -->
+  <link rel="stylesheet" href="fonts/fonts.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- ===================== 1. TAB STRIP ===================== -->
+  <div class="tab-strip">
+    <!-- renderer.js adds one tab element in here for every open tab. -->
+    <div class="tab-list" id="tab-list" role="tablist"></div>
+
+    <button class="icon-btn new-tab-btn" id="new-tab-button" title="New tab (Ctrl+T)">
+      <span class="material-symbols-rounded" aria-hidden="true">add</span>
+      <!-- Only shown when tabs are on the side. -->
+      <span class="new-tab-label">New tab</span>
+    </button>
+  </div>
+
+
+  <!-- ===================== 2. NAVIGATION TOOLBAR ===================== -->
+  <div class="toolbar">
+
+    <!-- Left: back, forward, reload, home -->
+    <div class="nav-cluster">
+      <button class="icon-btn" id="back-button" title="Back" disabled>
+        <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+      </button>
+      <button class="icon-btn" id="forward-button" title="Forward" disabled>
+        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+      </button>
+      <button class="icon-btn" id="reload-button" title="Reload (Ctrl+R)">
+        <span class="material-symbols-rounded" aria-hidden="true" id="reload-icon">refresh</span>
+      </button>
+      <button class="icon-btn" id="home-button" title="Home">
+        <span class="material-symbols-rounded" aria-hidden="true">home</span>
+      </button>
+    </div>
+
+    <!-- Center: the pill-shaped address bar -->
+    <form class="address-bar" id="address-form">
+      <!-- Security badge: a lock for https, a warning for http. -->
+      <span class="security-badge" id="security-badge" title="">
+        <span class="material-symbols-rounded" aria-hidden="true" id="security-icon">search</span>
+        <span class="security-label" id="security-label"></span>
+      </span>
+
+      <input
+        class="address-input"
+        id="address-input"
+        type="text"
+        placeholder="Search or type a web address"
+        autocomplete="off"
+        spellcheck="false"
+      >
+
+      <!-- Shields: how many ads and trackers were blocked on this page. Click
+           for the Shields panel (JavaScript switch, wipe this site's data). -->
+      <!-- The key: appears on pages with a password box once you have set up
+           the vault. Click to fill a saved sign-in, or to answer "Save?". -->
+      <button class="icon-btn small" id="key-button" type="button" title="Saved passwords" hidden>
+        <span class="material-symbols-rounded" aria-hidden="true">key</span>
+      </button>
+
+      <button class="icon-btn small shields-btn" id="shields-button" type="button" title="Shields">
+        <span class="material-symbols-rounded" aria-hidden="true">shield</span>
+        <span class="shields-count" id="shields-count"></span>
+      </button>
+
+      <!-- type="button" stops this from submitting the form when clicked. -->
+      <button class="icon-btn small" id="bookmark-button" type="button" title="Bookmark this page">
+        <span class="material-symbols-rounded" aria-hidden="true">star</span>
+      </button>
+    </form>
+
+    <!-- Right: soundscapes, reader mode, split view, theme switch, settings -->
+    <div class="action-cluster">
+      <!-- Opens the list of all your bookmarks (search, remove, import). -->
+      <button class="icon-btn" id="bookmarks-button" title="Bookmarks">
+        <span class="material-symbols-rounded" aria-hidden="true">bookmarks</span>
+      </button>
+      <button class="icon-btn" id="sound-button" title="Soundscapes">
+        <span class="material-symbols-rounded" aria-hidden="true" id="sound-icon">headphones</span>
+      </button>
+      <button class="icon-btn" id="reader-button" title="Reader mode">
+        <span class="material-symbols-rounded" aria-hidden="true">chrome_reader_mode</span>
+      </button>
+      <button class="icon-btn" id="split-button" title="Split view">
+        <span class="material-symbols-rounded" aria-hidden="true">splitscreen_right</span>
+      </button>
+      <button class="icon-btn" id="theme-button" title="Switch to dark theme">
+        <span class="material-symbols-rounded" aria-hidden="true" id="theme-icon">dark_mode</span>
+      </button>
+      <button class="icon-btn" id="settings-button" title="Settings">
+        <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ===================== 3. LOAD PROGRESS BAR ===================== -->
+  <div class="progress-track">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+
+  <!-- ===================== 4. BOOKMARKS BAR ===================== -->
+  <!-- "hidden" keeps it invisible until the first bookmark is added. -->
+  <div class="bookmarks-bar" id="bookmarks-bar" hidden></div>
+
+
+  <!-- ===================== 5. PAGE AREA ===================== -->
+  <!-- renderer.js puts one <webview> in here per tab. Normally one is
+       visible; in split view, two are shown side by side. -->
+  <main class="page-area" id="page-area">
+    <!-- Split view only: the gap between the two pages... -->
+    <div class="split-divider"></div>
+    <!-- ...and a colored line marking which page the toolbar controls. -->
+    <div class="pane-indicator"></div>
+  </main>
+
+
+  <!-- ===================== 6. SETTINGS AND MESSAGES ===================== -->
+
+  <!-- An invisible layer that covers the window while the settings panel is
+       open, so that clicking anywhere outside it closes it. -->
+  <div class="scrim" id="scrim" hidden></div>
+
+  <!-- Settings panel (opened by the gear button). -->
+  <div class="popover" id="settings-panel" hidden>
+    <div class="popover-title">Settings</div>
+
+    <div class="setting">
+      <div class="setting-label">Accent color</div>
+      <!-- renderer.js fills this with color swatches. -->
+      <div class="swatch-row" id="swatch-row"></div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Tab position</div>
+      <div class="chip-row">
+        <label class="choice-chip"><input type="radio" name="tab-position" value="top" checked><span>Top</span></label>
+        <label class="choice-chip"><input type="radio" name="tab-position" value="side"><span>Side (vertical)</span></label>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Search engine</div>
+      <div class="chip-row">
+        <label class="choice-chip"><input type="radio" name="search-engine" value="duckduckgo" checked><span>DuckDuckGo</span></label>
+        <label class="choice-chip"><input type="radio" name="search-engine" value="startpage"><span>Startpage</span></label>
+        <label class="choice-chip"><input type="radio" name="search-engine" value="brave"><span>Brave Search</span></label>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Wallpaper</div>
+      <!-- The three choices, shown as small previews. -->
+      <div class="wallpaper-row" role="radiogroup" aria-label="Start page wallpaper">
+        <button class="wallpaper-tile" type="button" role="radio" data-wallpaper="default">
+          <span class="wallpaper-thumb wallpaper-thumb-default"></span>
+          <span class="wallpaper-name">Klorine</span>
+        </button>
+        <button class="wallpaper-tile" type="button" role="radio" data-wallpaper="plain">
+          <span class="wallpaper-thumb wallpaper-thumb-plain"></span>
+          <span class="wallpaper-name">Plain</span>
+        </button>
+        <button class="wallpaper-tile" type="button" role="radio" data-wallpaper="custom">
+          <span class="wallpaper-thumb wallpaper-thumb-custom" id="wallpaper-custom-thumb">
+            <span class="material-symbols-rounded" aria-hidden="true">add_photo_alternate</span>
+          </span>
+          <span class="wallpaper-name">Your image</span>
+        </button>
+      </div>
+      <div class="wallpaper-actions">
+        <button class="text-btn" id="wallpaper-upload" type="button">Upload image&hellip;</button>
+        <button class="text-btn" id="wallpaper-remove" type="button" hidden>Remove</button>
+      </div>
+      <!-- The real file picker, hidden; the "Upload image" button opens it. -->
+      <input id="wallpaper-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden>
+      <p class="setting-hint">PNG, JPEG, WebP, GIF or AVIF. Your wallpaper is kept between sessions; hidden photo details (like location) are removed.</p>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Start page widgets</div>
+      <label class="switch-row">
+        <span class="switch-text">
+          <span class="switch-label">Stock tracker</span>
+          <span class="switch-hint">Your watchlist on the start page. Prices come from Yahoo Finance.</span>
+        </span>
+        <input class="switch" id="stocks-enabled" type="checkbox" role="switch" checked>
+      </label>
+      <label class="switch-row">
+        <span class="switch-text">
+          <span class="switch-label">Weather</span>
+          <span class="switch-hint">Weather and air quality for a place you type. Never uses your location. Data from Open-Meteo.</span>
+        </span>
+        <input class="switch" id="weather-enabled" type="checkbox" role="switch" checked>
+      </label>
+
+      <div class="setting-sublabel">Temperature</div>
+      <div class="chip-row">
+        <label class="choice-chip"><input type="radio" name="temperature-unit" value="c" checked><span>&deg;C</span></label>
+        <label class="choice-chip"><input type="radio" name="temperature-unit" value="f"><span>&deg;F</span></label>
+      </div>
+
+      <div class="setting-sublabel">Air quality scale</div>
+      <div class="chip-row">
+        <label class="choice-chip"><input type="radio" name="aqi-scale" value="auto" checked><span>Automatic</span></label>
+        <label class="choice-chip"><input type="radio" name="aqi-scale" value="in"><span>India</span></label>
+        <label class="choice-chip"><input type="radio" name="aqi-scale" value="us"><span>US</span></label>
+      </div>
+      <p class="setting-hint">Automatic uses India's scale for places in India and the US scale elsewhere. Drag a widget by its title to move it.</p>
+      <button class="text-btn" id="reset-widgets" type="button">Reset widget positions</button>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Privacy</div>
+      <label class="switch-row">
+        <span class="switch-text">
+          <span class="switch-label">Hide my time zone</span>
+          <span class="switch-hint">Websites are told you are in UTC, so they can't tell which part of the world you are in. Times on websites will then be shown in UTC (5 h 30 min behind India).</span>
+        </span>
+        <input class="switch" id="hide-timezone" type="checkbox" role="switch">
+      </label>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Saved data</div>
+<!-- renderer.js fills this in: "Set up vault", or the vault's
+           switches and buttons once it exists. -->
+      <div id="vault-settings"></div>
+    </div>
+
+    <div class="setting">
+      <label class="setting-label" for="home-page-input">Home page</label>
+      <!-- Left empty, the browser shows its own start page (a search box). -->
+      <input class="text-field" id="home-page-input" type="text" spellcheck="false" autocomplete="off"
+             placeholder="Empty = built-in start page">
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">About and updates</div>
+      <div class="update-row">
+        <span class="update-text">
+          <span class="update-version" id="update-version">Klorine</span>
+          <span class="update-status" id="update-status" role="status"></span>
+        </span>
+        <button class="tonal-btn" id="update-action" type="button">Check for updates</button>
+      </div>
+      <div class="update-bar" id="update-bar" hidden><div id="update-bar-fill"></div></div>
+      <p class="setting-hint">Klorine looks for new versions on its GitHub page and tells you; nothing is downloaded or installed until you say so.</p>
+    </div>
+
+    <div class="setting">
+      <div class="setting-label">Shortcuts</div>
+      <!-- On a Mac, use Cmd in place of Ctrl (except for Ctrl+Tab). -->
+      <dl class="shortcut-list">
+        <div><dt>Ctrl+L</dt><dd>Go to the address bar</dd></div>
+        <div><dt>Ctrl+T</dt><dd>New tab</dd></div>
+        <div><dt>Ctrl+W</dt><dd>Close tab</dd></div>
+        <div><dt>Ctrl+R</dt><dd>Reload</dd></div>
+        <div><dt>Ctrl+Shift+R</dt><dd>Hard reload</dd></div>
+        <div><dt>Ctrl+Tab</dt><dd>Next tab (add Shift for previous)</dd></div>
+        <div><dt>Ctrl+1 … 9</dt><dd>Jump to that tab</dd></div>
+        <div><dt>F12</dt><dd>Developer tools</dd></div>
+        <div><dt>Right-click tab</dt><dd>Group tabs by colour</dd></div>
+      </dl>
+    </div>
+
+    <p class="setting-note">
+      History, cookies and cache are wiped when you close the window.
+      Bookmarks are wiped too, unless you keep them in the vault ("Saved
+      data" above). Passwords are saved only if you set up the vault and
+      say yes each time.
+    </p>
+  </div>
+
+  <!-- Sign-in dialog, shown when a website asks for a username and password
+       with the browser's built-in prompt (routers and test servers do this). -->
+  <div class="dialog-scrim" id="login-scrim" hidden>
+    <form class="dialog" id="login-form" autocomplete="off">
+      <div class="popover-title">Sign in</div>
+      <p class="dialog-text" id="login-text"></p>
+      <input class="text-field" id="login-user" type="text" placeholder="Username" aria-label="Username" autocomplete="off" spellcheck="false">
+      <input class="text-field" id="login-pass" type="password" placeholder="Password" aria-label="Password" autocomplete="off">
+      <div class="dialog-actions">
+        <button class="text-btn" id="login-cancel" type="button">Cancel</button>
+        <button class="filled-btn" type="submit">Sign in</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===================== BOOKMARKS PANEL ===================== -->
+  <!-- Opened by the bookmarks button in the toolbar. renderer.js fills the
+       list. "Import" opens the dialog below it. -->
+  <div class="menu bookmarks-panel" id="bookmarks-panel" role="dialog" aria-label="Bookmarks" hidden>
+    <div class="bookmarks-head">
+      <span class="bookmarks-title">Bookmarks</span>
+      <button class="text-btn" id="bookmarks-import" type="button">Import&hellip;</button>
+    </div>
+    <label class="bookmarks-search">
+      <span class="material-symbols-rounded" aria-hidden="true">search</span>
+      <input id="bookmarks-search" type="text" placeholder="Search bookmarks" aria-label="Search bookmarks" autocomplete="off" spellcheck="false">
+    </label>
+    <div class="bookmarks-list" id="bookmarks-list"></div>
+    <p class="bookmarks-note" id="bookmarks-note"></p>
+  </div>
+
+  <!-- Import bookmarks: pick another browser on this computer, or a file. -->
+  <div class="dialog-scrim" id="import-scrim" hidden>
+    <div class="dialog import-dialog" id="import-dialog" role="dialog" aria-labelledby="import-title">
+      <div class="popover-title" id="import-title">Import bookmarks</div>
+      <p class="dialog-text" id="import-text"></p>
+      <div class="import-sources" id="import-sources"></div>
+      <label class="import-keep" id="import-keep-row" hidden>
+        <input type="checkbox" id="import-keep">
+        <span>Keep my bookmarks after Klorine closes (in the vault on this computer, behind a master password)</span>
+      </label>
+      <div class="dialog-actions" id="import-actions"></div>
+    </div>
+  </div>
+
+  <!-- ===================== VAULT AND PASSWORDS ===================== -->
+  <!-- One general-purpose dialog (create vault, unlock, change password,
+       confirmations). renderer.js fills in the words and boxes. -->
+  <div class="dialog-scrim" id="ask-scrim" hidden>
+    <form class="dialog ask-dialog" id="ask-form" autocomplete="off">
+      <div class="popover-title" id="ask-title"></div>
+      <p class="dialog-text" id="ask-text"></p>
+      <div class="ask-fields" id="ask-fields"></div>
+      <p class="dialog-error" id="ask-error" role="alert" hidden></p>
+      <div class="dialog-actions" id="ask-actions"></div>
+    </form>
+  </div>
+
+  <!-- The list of saved passwords (Settings -> Manage passwords). -->
+  <div class="dialog-scrim" id="passwords-scrim" hidden>
+    <div class="dialog passwords-dialog" role="dialog" aria-labelledby="passwords-title">
+      <div class="passwords-head">
+        <div class="popover-title" id="passwords-title">Saved passwords</div>
+        <button class="text-btn" id="passwords-import" type="button">Import CSV&hellip;</button>
+        <button class="icon-btn small" id="passwords-close" type="button" title="Close" aria-label="Close">
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <label class="bookmarks-search">
+        <span class="material-symbols-rounded" aria-hidden="true">search</span>
+        <input id="passwords-search" type="text" placeholder="Search sites and usernames" aria-label="Search saved passwords" autocomplete="off" spellcheck="false">
+      </label>
+      <div class="passwords-list" id="passwords-list"></div>
+      <p class="bookmarks-note">Passwords stay in your vault on this computer. A copied password is cleared from the clipboard after 30 seconds.</p>
+    </div>
+  </div>
+
+  <!-- The key button's menu: saved sign-ins for the page you are on. -->
+  <div class="menu logins-menu" id="logins-menu" role="menu" aria-label="Saved passwords for this site" hidden></div>
+
+  <!-- "Save password?" - shown after you sign in to a site. -->
+  <div class="save-prompt" id="save-prompt" role="dialog" aria-label="Save password" hidden>
+    <div class="save-prompt-text" id="save-prompt-text"></div>
+    <div class="save-prompt-actions">
+      <button class="text-btn" id="save-never" type="button">Never for this site</button>
+      <button class="text-btn" id="save-later" type="button">Not now</button>
+      <button class="filled-btn" id="save-yes" type="button">Save</button>
+    </div>
+  </div>
+
+  <!-- ===================== SHIELDS PANEL ===================== -->
+  <!-- Opened by the shield button in the address bar. renderer.js fills in
+       the site name and numbers. -->
+  <div class="menu shields-panel" id="shields-panel" role="dialog" aria-label="Shields" hidden>
+    <div class="shields-head">
+      <span class="material-symbols-rounded shields-head-icon" aria-hidden="true">shield</span>
+      <div class="shields-head-text">
+        <div class="shields-title">Shields</div>
+        <div class="shields-host" id="shields-host"></div>
+      </div>
+    </div>
+
+    <div class="shields-stats">
+      <div class="shields-stat">
+        <span class="shields-num" id="shields-blocked">0</span>
+        <span class="shields-stat-label">Ads &amp; trackers blocked</span>
+      </div>
+      <div class="shields-stat">
+        <span class="shields-num" id="shields-stripped">0</span>
+        <span class="shields-stat-label">Tracking links cleaned</span>
+      </div>
+    </div>
+
+    <label class="switch-row">
+      <span class="switch-text">
+        <span class="switch-label">Shields</span>
+        <span class="switch-hint" id="shields-on-hint">Blocking trackers &amp; ads here. Turn off if this site doesn't work.</span>
+      </span>
+      <input class="switch" id="shields-on" type="checkbox" role="switch" checked>
+    </label>
+
+    <label class="switch-row">
+      <span class="switch-text">
+        <span class="switch-label">Block JavaScript</span>
+        <span class="switch-hint">On this site. The page reloads; some sites won't work.</span>
+      </span>
+      <input class="switch" id="shields-js" type="checkbox" role="switch">
+    </label>
+
+    <button class="tonal-btn" id="shields-wipe" type="button">
+      <span class="material-symbols-rounded" aria-hidden="true">delete_sweep</span>
+      <span>Wipe site data &amp; reload</span>
+    </button>
+    <p class="shields-note">Removes this site's cookies and saved data, then reloads the page.</p>
+  </div>
+
+  <!-- ===================== SOUNDSCAPES PANEL ===================== -->
+  <!-- Opened by the headphones button. Rain, wind and café sounds, made live
+       by soundscapes.js. Each can be switched on and mixed at its own volume. -->
+  <div class="menu sound-panel" id="sound-panel" role="dialog" aria-label="Soundscapes" hidden>
+    <div class="sound-head">
+      <span class="material-symbols-rounded sound-head-icon" aria-hidden="true">graphic_eq</span>
+      <div>
+        <div class="sound-title">Soundscapes</div>
+        <div class="sound-sub">Made live on your computer. Nothing is downloaded or streamed.</div>
+      </div>
+    </div>
+
+    <div class="sound-row" data-scene="rain">
+      <button class="sound-toggle" type="button" aria-pressed="false">
+        <span class="material-symbols-rounded" aria-hidden="true">rainy</span>
+        <span class="sound-name">Rain</span>
+      </button>
+      <input class="sound-volume" type="range" min="0" max="100" value="75" aria-label="Rain volume">
+    </div>
+    <div class="sound-row" data-scene="wind">
+      <button class="sound-toggle" type="button" aria-pressed="false">
+        <span class="material-symbols-rounded" aria-hidden="true">air</span>
+        <span class="sound-name">Wind</span>
+      </button>
+      <input class="sound-volume" type="range" min="0" max="100" value="75" aria-label="Wind volume">
+    </div>
+    <div class="sound-row" data-scene="cafe">
+      <button class="sound-toggle" type="button" aria-pressed="false">
+        <span class="material-symbols-rounded" aria-hidden="true">local_cafe</span>
+        <span class="sound-name">Caf&eacute;</span>
+      </button>
+      <input class="sound-volume" type="range" min="0" max="100" value="75" aria-label="Café volume">
+    </div>
+
+    <div class="sound-master">
+      <span class="material-symbols-rounded" aria-hidden="true">volume_up</span>
+      <input class="sound-volume" id="sound-master" type="range" min="0" max="100" value="100" aria-label="Overall volume">
+      <button class="text-btn" id="sound-stop" type="button" disabled>Stop all</button>
+    </div>
+  </div>
+
+  <!-- ===================== TAB GROUP MENUS ===================== -->
+  <!-- Invisible layer behind an open tab menu or group editor; clicking it
+       closes them. -->
+  <div class="menu-scrim" id="menu-scrim" hidden></div>
+
+  <!-- The menu shown when you right-click a tab. renderer.js fills it in. -->
+  <div class="menu" id="tab-menu" role="menu" hidden></div>
+
+  <!-- The editor shown when you right-click a group's label in the tab strip
+       (and when a new group is made). -->
+  <div class="menu group-editor" id="group-editor" hidden>
+    <input class="text-field" id="group-name-input" type="text" maxlength="40"
+           placeholder="Name this group" aria-label="Group name"
+           autocomplete="off" spellcheck="false">
+    <!-- renderer.js fills this with the color choices. -->
+    <div class="group-swatch-row" id="group-swatch-row"></div>
+    <div class="menu-divider"></div>
+    <button class="menu-entry" id="group-new-tab">
+      <span class="material-symbols-rounded" aria-hidden="true">add</span><span>New tab in group</span>
+    </button>
+    <button class="menu-entry" id="group-ungroup">
+      <span class="material-symbols-rounded" aria-hidden="true">label_off</span><span>Ungroup</span>
+    </button>
+    <button class="menu-entry" id="group-close">
+      <span class="material-symbols-rounded" aria-hidden="true">tab_close</span><span>Close group</span>
+    </button>
+  </div>
+
+  <!-- Small message bar that slides up from the bottom for a few seconds. -->
+  <div class="snackbar" id="snackbar" role="status"></div>
+
+
+  <!-- The behavior. Loaded last so that everything above already exists. -->
+  <script src="soundscapes.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

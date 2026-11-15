@@ -1,0 +1,57 @@
+{
+  "name": "klorine",
+  "productName": "Klorine",
+  "version": "1.0.1",
+  "description": "Klorine: a simple, privacy-focused desktop browser built with Electron.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "update-filters": "node update-filters.js",
+    "dist": "electron-builder --win",
+    "release": "electron-builder --win --publish always"
+  },
+  "author": "Klorine",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^45.3.2",
+    "electron-builder": "26.18.0"
+  },
+  "dependencies": {
+    "@ghostery/adblocker": "2.20.3",
+    "electron-updater": "6.8.11"
+  },
+  "build": {
+    "appId": "org.klorine.browser",
+    "productName": "Klorine",
+    "files": [
+      "main.js",
+      "preload.js",
+      "page-preload.js",
+      "renderer.js",
+      "soundscapes.js",
+      "index.html",
+      "styles.css",
+      "assets/**",
+      "fonts/**",
+      "filters/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Klorine"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ShreekarNarayan",
+        "repo": "Klorine"
+      }
+    ]
+  }
+}
