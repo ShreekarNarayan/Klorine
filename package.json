@@ -1,7 +1,7 @@
 {
   "name": "klorine",
   "productName": "Klorine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Klorine: a simple, privacy-focused desktop browser built with Electron.",
   "main": "main.js",
   "scripts": {

@@ -216,6 +216,366 @@
 
 
 /* =============================================================================
+   MORE COLOR THEMES
+   =============================================================================
+   Five two-color themes, chosen in Settings -> Theme. Like Klorine Sage,
+   each has a light and a dark version (the moon / sun button switches):
+   one of its two colors forms the window frame, the other the accents and
+   text. Every shade below was mixed from the theme's two named colors and
+   checked for readable contrast.
+
+     storm    Storm Grey   #5A6068  +  Matte Black        #1C1D20
+     sand     Desert Sand  #D8C3A0  +  Olive Drab         #5B5E3C
+     butter   Butter Cream #F4EAD5  +  Forest Green       #1E3B2F
+     oatmeal  Oatmeal Silk #ECE2CE  +  Evergreen Lacquer  #173F2E
+     latte    Black Matte  #1C2620  +  Oat Latte          #DCCCB2
+   ========================================================================== */
+
+/* Storm Grey & Matte Black (light) */
+:root[data-theme="light"][data-palette="storm"] {
+  --app-bg:                    #AAB0B8;
+  --track-bg:                  #BEC3C9;
+  --bar-bg:                    #F2F3F5;
+  --tab-active:                #F2F3F5;
+  --field-bg:                  #E1E3E6;
+
+  --primary:                   #5A6068;
+  --on-primary:                #F2F3F5;
+  --primary-container:         #C7CBD0;
+  --on-primary-container:      #16171A;
+
+  --surface:                   #F2F3F5;
+  --surface-container-low:     #EDEEF1;
+  --surface-container:         #E9EAED;
+  --surface-container-high:    #E4E6E9;
+  --surface-container-highest: #DEE0E4;
+  --on-surface:                #1C1D20;
+
+  --surface-variant:           #DEE0E4;
+  --on-surface-variant:        #36373A;
+  --outline:                   #767779;
+  --outline-variant:           #C5C9CF;
+
+  --inverse-surface:           #313235;
+  --inverse-on-surface:        #F2F3F5;
+
+  --g-l:    0.60;
+  --g-cmax: 0.09;
+}
+
+/* Storm Grey & Matte Black (dark) */
+:root[data-theme="dark"][data-palette="storm"] {
+  --app-bg:                    #1C1D20;
+  --track-bg:                  #161719;
+  --bar-bg:                    #292B2E;
+  --tab-active:                #5A6068;
+  --field-bg:                  #1A1B1D;
+
+  --primary:                   #C4CAD2;
+  --on-primary:                #141416;
+  --primary-container:         #5A6068;
+  --on-primary-container:      #DFE2E6;
+
+  --surface:                   #212225;
+  --surface-container-low:     #25272A;
+  --surface-container:         #2A2C2F;
+  --surface-container-high:    #303235;
+  --surface-container-highest: #37393C;
+  --on-surface:                #D9DDE2;
+
+  --surface-variant:           #37393C;
+  --on-surface-variant:        #B3B7BB;
+  --outline:                   #84878B;
+  --outline-variant:           #44474B;
+
+  --inverse-surface:           #D6DAE0;
+  --inverse-on-surface:        #191A1D;
+
+  --g-l:    0.80;
+  --g-cmax: 0.08;
+}
+
+/* Desert Sand & Olive Drab (light) */
+:root[data-theme="light"][data-palette="sand"] {
+  --app-bg:                    #D8C3A0;
+  --track-bg:                  #E1D0B4;
+  --bar-bg:                    #F8F3E8;
+  --tab-active:                #F8F3E8;
+  --field-bg:                  #F0E7D7;
+
+  --primary:                   #5B5E3C;
+  --on-primary:                #F8F3E8;
+  --primary-container:         #E5D6BD;
+  --on-primary-container:      #282A1A;
+
+  --surface:                   #F8F3E8;
+  --surface-container-low:     #F6F0E3;
+  --surface-container:         #F4EDDF;
+  --surface-container-high:    #F2E9DA;
+  --surface-container-highest: #EFE6D4;
+  --on-surface:                #323421;
+
+  --surface-variant:           #EFE6D4;
+  --on-surface-variant:        #4A4B39;
+  --outline:                   #858475;
+  --outline-variant:           #E4D5BB;
+
+  --inverse-surface:           #464735;
+  --inverse-on-surface:        #F8F3E8;
+
+  --g-l:    0.60;
+  --g-cmax: 0.09;
+}
+
+/* Desert Sand & Olive Drab (dark) */
+:root[data-theme="dark"][data-palette="sand"] {
+  --app-bg:                    #28291A;
+  --track-bg:                  #1F2014;
+  --bar-bg:                    #363525;
+  --tab-active:                #5B5E3C;
+  --field-bg:                  #252618;
+
+  --primary:                   #D8C3A0;
+  --on-primary:                #1C1D12;
+  --primary-container:         #5B5E3C;
+  --on-primary-container:      #EADECB;
+
+  --surface:                   #2D2E1E;
+  --surface-container-low:     #323121;
+  --surface-container:         #373625;
+  --surface-container-high:    #3D3B2A;
+  --surface-container-highest: #44422F;
+  --on-surface:                #E6D8C1;
+
+  --surface-variant:           #44422F;
+  --on-surface-variant:        #C0B5A0;
+  --outline:                   #908976;
+  --outline-variant:           #524E3A;
+
+  --inverse-surface:           #E4D5BC;
+  --inverse-on-surface:        #242517;
+
+  --g-l:    0.80;
+  --g-cmax: 0.08;
+}
+
+/* Butter Cream & Forest Green (light) */
+:root[data-theme="light"][data-palette="butter"] {
+  --app-bg:                    #9EA493;
+  --track-bg:                  #B6B8A5;
+  --bar-bg:                    #F4EAD5;
+  --tab-active:                #F4EAD5;
+  --field-bg:                  #DFD9C5;
+
+  --primary:                   #1E3B2F;
+  --on-primary:                #F4EAD5;
+  --primary-container:         #C0C0AD;
+  --on-primary-container:      #0D1A15;
+
+  --surface:                   #F4EAD5;
+  --surface-container-low:     #EEE5D0;
+  --surface-container:         #E9E1CC;
+  --surface-container-high:    #E3DCC8;
+  --surface-container-highest: #DCD6C3;
+  --on-surface:                #10201A;
+
+  --surface-variant:           #DCD6C3;
+  --on-surface-variant:        #2B3830;
+  --outline:                   #707569;
+  --outline-variant:           #BFBFAC;
+
+  --inverse-surface:           #27342D;
+  --inverse-on-surface:        #F4EAD5;
+
+  --g-l:    0.60;
+  --g-cmax: 0.09;
+}
+
+/* Butter Cream & Forest Green (dark) */
+:root[data-theme="dark"][data-palette="butter"] {
+  --app-bg:                    #1E3B2F;
+  --track-bg:                  #172E25;
+  --bar-bg:                    #2F493C;
+  --tab-active:                #42594B;
+  --field-bg:                  #1C362B;
+
+  --primary:                   #F4EAD5;
+  --on-primary:                #152921;
+  --primary-container:         #5A6C5D;
+  --on-primary-container:      #F9F3E8;
+
+  --surface:                   #244034;
+  --surface-container-low:     #2A4538;
+  --surface-container:         #304A3D;
+  --surface-container-high:    #385043;
+  --surface-container-highest: #40574A;
+  --on-surface:                #F8F1E4;
+
+  --surface-variant:           #40574A;
+  --on-surface-variant:        #CCCDC0;
+  --outline:                   #969F93;
+  --outline-variant:           #516557;
+
+  --inverse-surface:           #F7F0E2;
+  --inverse-on-surface:        #1B352A;
+
+  --g-l:    0.80;
+  --g-cmax: 0.08;
+}
+
+/* Oatmeal Silk & Evergreen Lacquer (light) */
+:root[data-theme="light"][data-palette="oatmeal"] {
+  --app-bg:                    #CFC2A8;
+  --track-bg:                  #D7CBB3;
+  --bar-bg:                    #ECE2CE;
+  --tab-active:                #ECE2CE;
+  --field-bg:                  #E5DAC5;
+
+  --primary:                   #173F2E;
+  --on-primary:                #ECE2CE;
+  --primary-container:         #DBCFB7;
+  --on-primary-container:      #0A1C14;
+
+  --surface:                   #ECE2CE;
+  --surface-container-low:     #EAE0CB;
+  --surface-container:         #E8DEC9;
+  --surface-container-high:    #E6DCC6;
+  --surface-container-highest: #E4D9C3;
+  --on-surface:                #0D2319;
+
+  --surface-variant:           #E4D9C3;
+  --on-surface-variant:        #283A2F;
+  --outline:                   #6B7365;
+  --outline-variant:           #DACEB6;
+
+  --inverse-surface:           #23362B;
+  --inverse-on-surface:        #ECE2CE;
+
+  --g-l:    0.60;
+  --g-cmax: 0.09;
+}
+
+/* Oatmeal Silk & Evergreen Lacquer (dark) */
+:root[data-theme="dark"][data-palette="oatmeal"] {
+  --app-bg:                    #173F2E;
+  --track-bg:                  #123124;
+  --bar-bg:                    #284C3B;
+  --tab-active:                #3B5B49;
+  --field-bg:                  #153A2A;
+
+  --primary:                   #ECE2CE;
+  --on-primary:                #102C20;
+  --primary-container:         #536D5B;
+  --on-primary-container:      #F5EFE4;
+
+  --surface:                   #1D4433;
+  --surface-container-low:     #234837;
+  --surface-container:         #294D3C;
+  --surface-container-high:    #315341;
+  --surface-container-highest: #395948;
+  --on-surface:                #F3ECDF;
+
+  --surface-variant:           #395948;
+  --on-surface-variant:        #C7C9BC;
+  --outline:                   #909E8F;
+  --outline-variant:           #4A6654;
+
+  --inverse-surface:           #F2EBDD;
+  --inverse-on-surface:        #153929;
+
+  --g-l:    0.80;
+  --g-cmax: 0.08;
+}
+
+/* Black Matte & Oat Latte (light) */
+:root[data-theme="light"][data-palette="latte"] {
+  --app-bg:                    #DCCCB2;
+  --track-bg:                  #E4D7C1;
+  --bar-bg:                    #F7F2E8;
+  --tab-active:                #F7F2E8;
+  --field-bg:                  #F1E9DB;
+
+  --primary:                   #1C2620;
+  --on-primary:                #F7F2E8;
+  --primary-container:         #E7DBC8;
+  --on-primary-container:      #161E1A;
+
+  --surface:                   #F7F2E8;
+  --surface-container-low:     #F5EFE4;
+  --surface-container:         #F3EDE1;
+  --surface-container-high:    #F2EADD;
+  --surface-container-highest: #EFE7D9;
+  --on-surface:                #1C2620;
+
+  --surface-variant:           #EFE7D9;
+  --on-surface-variant:        #363E38;
+  --outline:                   #787C74;
+  --outline-variant:           #E6DAC7;
+
+  --inverse-surface:           #323A34;
+  --inverse-on-surface:        #F7F2E8;
+
+  --g-l:    0.60;
+  --g-cmax: 0.09;
+}
+
+/* Black Matte & Oat Latte (dark) */
+:root[data-theme="dark"][data-palette="latte"] {
+  --app-bg:                    #1C2620;
+  --track-bg:                  #161E19;
+  --bar-bg:                    #2B332C;
+  --tab-active:                #3D4239;
+  --field-bg:                  #1A231D;
+
+  --primary:                   #DCCCB2;
+  --on-primary:                #141B16;
+  --primary-container:         #525449;
+  --on-primary-container:      #ECE3D5;
+
+  --surface:                   #222B24;
+  --surface-container-low:     #272F28;
+  --surface-container:         #2C342C;
+  --surface-container-high:    #333A32;
+  --surface-container-highest: #3B4137;
+  --on-surface:                #E8DECD;
+
+  --surface-variant:           #3B4137;
+  --on-surface-variant:        #BFB9AA;
+  --outline:                   #8C8B7F;
+  --outline-variant:           #4A4E43;
+
+  --inverse-surface:           #E6DBC9;
+  --inverse-on-surface:        #19221D;
+
+  --g-l:    0.80;
+  --g-cmax: 0.08;
+}
+
+/* Each theme has its own version of the default wallpaper (the same hills,
+   in the theme's colors). */
+:root[data-palette="storm"][data-wallpaper="default"] .start-page,
+:root[data-palette="storm"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-storm-light.svg"); }
+:root[data-theme="dark"][data-palette="storm"][data-wallpaper="default"] .start-page,
+:root[data-theme="dark"][data-palette="storm"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-storm-dark.svg"); }
+:root[data-palette="sand"][data-wallpaper="default"] .start-page,
+:root[data-palette="sand"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-sand-light.svg"); }
+:root[data-theme="dark"][data-palette="sand"][data-wallpaper="default"] .start-page,
+:root[data-theme="dark"][data-palette="sand"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-sand-dark.svg"); }
+:root[data-palette="butter"][data-wallpaper="default"] .start-page,
+:root[data-palette="butter"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-butter-light.svg"); }
+:root[data-theme="dark"][data-palette="butter"][data-wallpaper="default"] .start-page,
+:root[data-theme="dark"][data-palette="butter"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-butter-dark.svg"); }
+:root[data-palette="oatmeal"][data-wallpaper="default"] .start-page,
+:root[data-palette="oatmeal"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-oatmeal-light.svg"); }
+:root[data-theme="dark"][data-palette="oatmeal"][data-wallpaper="default"] .start-page,
+:root[data-theme="dark"][data-palette="oatmeal"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-oatmeal-dark.svg"); }
+:root[data-palette="latte"][data-wallpaper="default"] .start-page,
+:root[data-palette="latte"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-latte-light.svg"); }
+:root[data-theme="dark"][data-palette="latte"][data-wallpaper="default"] .start-page,
+:root[data-theme="dark"][data-palette="latte"] .wallpaper-thumb-default { background-image: url("assets/wallpaper-latte-dark.svg"); }
+
+
+/* =============================================================================
    2. PAGE BASICS
    ========================================================================== */
 
@@ -2438,8 +2798,15 @@ body.vertical-tabs .tab.grouped::after {
   gap: 8px;
 }
 
-/* Accent swatches sit a little closer so all seven fit on one line. */
+/* Swatches sit a little closer so a whole row fits on one line. */
 .swatch-row { gap: 6px; }
+
+/* Theme swatches show both of the theme's colors, split corner to corner. */
+.swatch.two-tone {
+  background: linear-gradient(135deg, var(--swatch-color) 50%, var(--swatch-color-2) 50%);
+  background-clip: content-box;
+  box-shadow: inset 0 0 0 1px var(--outline-variant);
+}
 
 /* Accent color swatches. Each one gets its own --swatch-hue from renderer.js
    (or an exact --swatch-color, used for Sage). */

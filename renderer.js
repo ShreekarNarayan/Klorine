@@ -52,12 +52,23 @@ const SEARCH_ENGINES = {
 // built-in start page (a plain search box) instead of a website.
 const START_PAGE = 'about:blank';
 
-// Accent colors offered in the settings panel. Each number is a position on
-// the color wheel (0-360); the whole palette is generated from it in styles.css.
-// "Sage" is different: it uses the hand-picked Klorine sage and off-white
-// colors (palette: 'sage' in styles.css) and is the default.
+// The looks offered in the settings panel. There are two kinds:
+//
+//   THEMES have "palette": a hand-made set of colors in styles.css, built
+//   from two named colors (shown together on the swatch). Each has a light
+//   and a dark version. "starts" is the version shown when you pick it;
+//   the moon / sun button in the toolbar switches to the other one.
+//   "Sage" is Klorine's own theme and the default.
+//
+//   ACCENT COLORS have only "hue": a position on the color wheel (0-360),
+//   from which styles.css generates a whole palette.
 const ACCENT_HUES = [
-  { name: 'Sage',   hue: 130, palette: 'sage', color: '#9CAF88' },
+  { name: 'Sage',   hue: 130, palette: 'sage', color: '#9CAF88', color2: '#F7F5EF' },
+  { name: "Storm Grey & Matte Black", hue: 255, palette: 'storm', color: '#5A6068', color2: '#1C1D20', starts: 'dark' },
+  { name: "Desert Sand & Olive Drab", hue: 95, palette: 'sand', color: '#D8C3A0', color2: '#5B5E3C', starts: 'light' },
+  { name: "Butter Cream & Forest Green", hue: 155, palette: 'butter', color: '#F4EAD5', color2: '#1E3B2F', starts: 'light' },
+  { name: "Oatmeal Silk & Evergreen Lacquer", hue: 158, palette: 'oatmeal', color: '#ECE2CE', color2: '#173F2E', starts: 'light' },
+  { name: "Black Matte & Oat Latte", hue: 140, palette: 'latte', color: '#1C2620', color2: '#DCCCB2', starts: 'dark' },
   { name: 'Purple', hue: 300 },
   { name: 'Blue',   hue: 255 },
   { name: 'Teal',   hue: 195 },
@@ -2617,23 +2628,44 @@ function syncTitleBar() {
 themeButton.addEventListener('click', () => {
   const current = document.documentElement.dataset.theme;
   setTheme(current === 'dark' ? 'light' : 'dark');
+  saveAppearance();
 });
+
+// Your look (theme or accent, and light or dark) is remembered between
+// sessions. It is saved by main.js in appearance.json; nothing else is.
+function saveAppearance() {
+  if (!window.klorineAppearance) return;
+  window.klorineAppearance.save(settings.accent, document.documentElement.dataset.theme).catch(() => {});
+}
+async function loadAppearance() {
+  if (!window.klorineAppearance) return;
+  try {
+    const saved = await window.klorineAppearance.load();
+    if (!saved) return;
+    if (saved.theme === 'light' || saved.theme === 'dark') setTheme(saved.theme);
+    if (ACCENT_HUES.some((a) => a.name === saved.accent)) setAccent(saved.accent);
+  } catch (error) { /* keep the defaults */ }
+}
 
 // Changes the accent color: sets the --hue variable from styles.css, and
 // switches to the hand-picked Klorine palette for Sage.
-function setAccent(name) {
+// "picked" is true when you clicked a swatch (rather than Klorine restoring
+// your saved choice): a theme then opens in its natural light or dark version.
+function setAccent(name, picked = false) {
   const accent = ACCENT_HUES.find((a) => a.name === name) || ACCENT_HUES[0];
   settings.accent = accent.name;
+  if (picked && accent.starts) setTheme(accent.starts);
   document.documentElement.style.setProperty('--hue', String(accent.hue));
   if (accent.palette) {
     document.documentElement.dataset.palette = accent.palette;
   } else {
     delete document.documentElement.dataset.palette;
   }
-  for (const swatch of swatchRow.children) {
+  for (const swatch of document.querySelectorAll('.swatch')) {
     swatch.classList.toggle('selected', swatch.dataset.accent === accent.name);
   }
   syncTitleBar();
+  if (picked) saveAppearance();
 }
 
 // Builds the row of color swatches in the settings panel.
@@ -2641,12 +2673,17 @@ function drawSwatches() {
   for (const accent of ACCENT_HUES) {
     const swatch = document.createElement('button');
     swatch.className = 'swatch';
-    setTip(swatch, accent.name + ' accent color');
+    setTip(swatch, accent.palette ? accent.name + ' theme' : accent.name + ' accent color');
     swatch.dataset.accent = accent.name;
     swatch.style.setProperty('--swatch-hue', String(accent.hue));
     if (accent.color) swatch.style.setProperty('--swatch-color', accent.color);
-    swatch.addEventListener('click', () => setAccent(accent.name));
-    swatchRow.appendChild(swatch);
+    if (accent.color2) {
+      swatch.style.setProperty('--swatch-color-2', accent.color2);
+      swatch.classList.add('two-tone');
+    }
+    swatch.addEventListener('click', () => setAccent(accent.name, true));
+    // Themes go in the first row, single accent colors in the second.
+    (accent.palette ? byId('theme-row') : swatchRow).appendChild(swatch);
   }
 }
 
@@ -4574,6 +4611,7 @@ setTheme('light');
 drawSwatches();
 setAccent(settings.accent);
 loadWallpaper();
+loadAppearance();
 loadWidgets();
 loadVault();
 loadPrivacySettings();

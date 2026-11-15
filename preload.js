@@ -121,6 +121,12 @@ contextBridge.exposeInMainWorld('klorineUpdates', {
   install: () => ipcRenderer.invoke('updates:install'),
 });
 
+// Your look: the theme or accent color, and light or dark.
+contextBridge.exposeInMainWorld('klorineAppearance', {
+  load: () => ipcRenderer.invoke('appearance:load'),
+  save: (accent, theme) => ipcRenderer.invoke('appearance:save', { accent: String(accent), theme: theme === 'dark' ? 'dark' : 'light' }),
+});
+
 // Privacy settings: { hideTimezone }.
 contextBridge.exposeInMainWorld('klorinePrivacy', {
   load: () => ipcRenderer.invoke('privacy:load'),

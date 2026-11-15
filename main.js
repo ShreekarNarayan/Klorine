@@ -439,6 +439,32 @@ function applyTimezone(contents) {
   }
 }
 
+// ---------- Remembering your look ----------
+// The theme (or accent color) and light / dark choice are kept between
+// sessions in appearance.json, e.g. { "accent": "Sage", "theme": "light" }.
+function setUpAppearanceRequests() {
+  const file = () => path.join(app.getPath('userData'), 'appearance.json');
+  const clean = (value) => {
+    const given = value && typeof value === 'object' ? value : {};
+    return {
+      accent: typeof given.accent === 'string' ? given.accent.replace(/[^\w &-]/g, '').slice(0, 60) : '',
+      theme: given.theme === 'dark' ? 'dark' : 'light',
+    };
+  };
+  ipcMain.handle('appearance:load', (event) => {
+    if (!fromOurToolbar(event)) return null;
+    try { return clean(JSON.parse(fs.readFileSync(file(), 'utf8'))); } catch (error) { return null; }
+  });
+  ipcMain.handle('appearance:save', (event, value) => {
+    if (!fromOurToolbar(event)) return false;
+    try {
+      fs.mkdirSync(app.getPath('userData'), { recursive: true });
+      fs.writeFileSync(file(), JSON.stringify(clean(value), null, 2));
+      return true;
+    } catch (error) { return false; }
+  });
+}
+
 function setUpPrivacyRequests() {
   loadPrivacySettings();
   // Every new tab gets the current choice before its first page loads.
@@ -2930,6 +2956,7 @@ app.whenReady().then(async () => {
   setUpVault();
   setUpFingerprintSeeds();
   setUpPrivacyRequests();
+  setUpAppearanceRequests();
   setUpUpdates();
 
   // Start clean, in case the app crashed last time before it could clean up.
