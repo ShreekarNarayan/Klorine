@@ -8,7 +8,9 @@
     "start": "electron .",
     "update-filters": "node update-filters.js",
     "dist": "electron-builder --win",
-    "release": "electron-builder --win --publish always"
+    "release": "electron-builder --win --publish always",
+    "dist:store": "electron-builder --win appx",
+    "dist:installer": "electron-builder --win nsis --publish never"
   },
   "author": "Klorine",
   "license": "MIT",
@@ -44,7 +46,8 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "Klorine"
+      "shortcutName": "Klorine",
+      "artifactName": "Klorine-Setup-${version}.${ext}"
     },
     "publish": [
       {
@@ -52,6 +55,18 @@
         "owner": "ShreekarNarayan",
         "repo": "Klorine"
       }
-    ]
+    ],
+    "appx": {
+      "identityName": "YOUR-STORE-IDENTITY-NAME",
+      "publisher": "CN=YOUR-STORE-PUBLISHER-ID",
+      "publisherDisplayName": "YOUR-STORE-PUBLISHER-NAME",
+      "applicationId": "Klorine",
+      "displayName": "Klorine",
+      "backgroundColor": "#9CAF88",
+      "languages": [
+        "en-US"
+      ],
+      "artifactName": "Klorine-Store-${version}.${ext}"
+    }
   }
 }

@@ -1,0 +1,107 @@
+# =============================================================================
+#  Release workflow: builds Klorine's Windows installer on GitHub's computers,
+#  signs it (once SignPath is set up), and prepares a draft release.
+# =============================================================================
+#  How to run it:  your repository on GitHub -> Actions -> "Release" ->
+#                  "Run workflow".
+#
+#  What it does, in order:
+#    1. Takes the source code exactly as it is in the repository.
+#    2. Builds the installer  Klorine-Setup-<version>.exe  (the version number
+#       comes from package.json).
+#    3. If SignPath is set up (see SIGNING.md), sends the installer to
+#       SignPath to be signed, and waits. You approve the request on
+#       signpath.io. If SignPath is NOT set up yet, this step is skipped and
+#       the installer stays unsigned.
+#    4. Writes latest.yml (what installed copies of Klorine read to find the
+#       update) for the final installer.
+#    5. Creates a DRAFT release with both files. Nothing reaches users until
+#       you open the draft on GitHub and click "Publish release".
+#
+#  Building here rather than on your own PC means anyone can check that the
+#  installer was made from the public source code. SignPath requires that.
+# =============================================================================
+
+name: Release
+
+on:
+  workflow_dispatch:   # started by hand with the "Run workflow" button
+
+permissions:
+  contents: write      # to create the draft release
+  actions: read        # lets SignPath confirm which build made the file
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Get the source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the packages
+        shell: pwsh
+        run: |
+          if (Test-Path package-lock.json) { npm ci } else { npm install }
+
+      - name: Read the version number
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Building Klorine $version"
+
+      - name: Build the installer
+        run: npx electron-builder --win nsis --publish never
+
+      - name: Keep the unsigned installer
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer
+          path: dist/Klorine-Setup-${{ steps.version.outputs.version }}.exe
+          if-no-files-found: error
+
+      # ----- Signing (only once SignPath is set up; see SIGNING.md) -----
+      - name: Sign the installer with SignPath
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          github-artifact-id: ${{ steps.upload.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600   # time for you to approve it
+          output-artifact-directory: release
+
+      - name: Use the unsigned installer (SignPath not set up yet)
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID == '' }}
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item "dist/Klorine-Setup-${{ steps.version.outputs.version }}.exe" release/
+          Write-Host "::warning::SignPath is not set up, so this installer is NOT signed."
+
+      - name: Write latest.yml for the final installer
+        run: node scripts/make-latest-yml.js release
+
+      - name: Create the draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          gh release create "v$version" `
+            "release/Klorine-Setup-$version.exe" `
+            "release/latest.yml" `
+            --draft `
+            --title "Klorine $version" `
+            --notes "Write here what changed in this version, then click Publish release."

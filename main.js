@@ -2307,9 +2307,12 @@ function setUpFingerprintSeeds() {
 //
 // Updates only work in the INSTALLED Klorine (made with "npm run dist"),
 // not when it is started with "npm start".
+//
+// The Microsoft Store edition never looks for updates itself: the Store
+// delivers them, so all of this is switched off there.
 const UPDATE_CHECK_EVERY_MS = 6 * 60 * 60 * 1000;
 const updates = {
-  status: 'idle',     // idle, checking, none, available, downloading, ready, error, unsupported
+  status: 'idle',     // idle, checking, none, available, downloading, ready, error, unsupported, store
   current: app.getVersion(),
   version: null,      // the new version, when there is one
   percent: 0,         // download progress
@@ -2329,8 +2332,10 @@ function setUpUpdates() {
   } catch (error) {
     autoUpdater = null;    // not installed: Klorine still works, without updates
   }
-  const usable = () => Boolean(autoUpdater) && app.isPackaged;
-  if (!usable()) updates.status = 'unsupported';
+  const fromStore = process.windowsStore === true;     // installed from the Microsoft Store
+  const usable = () => Boolean(autoUpdater) && app.isPackaged && !fromStore;
+  if (fromStore) updates.status = 'store';
+  else if (!usable()) updates.status = 'unsupported';
 
   if (autoUpdater) {
     autoUpdater.autoDownload = false;           // ask first

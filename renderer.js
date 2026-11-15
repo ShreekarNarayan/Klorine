@@ -4333,6 +4333,7 @@ function drawUpdates(state, fromUser = false) {
     ready:       ['Version ' + state.version + ' is ready. It installs when Klorine restarts or closes.', 'Restart and install', false],
     error:       ['Couldn\u2019t check for updates. Check your connection and try again.' + when, 'Check for updates', false],
     unsupported: ['Updates work in the installed version of Klorine (not when started with npm start).', 'Check for updates', true],
+    store:       ['Updates are delivered by the Microsoft Store.', 'Check for updates', true],
   };
   const [text, label, disabled] = looks[state.status] || looks.idle;
   updateStatus.textContent = text;
